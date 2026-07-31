@@ -10,11 +10,12 @@ function loadConfig() {
 }
 
 export function useWorkout() {
-  const exercises = ref(loadConfig()?.ex || defaultExercises())
-  const rounds = ref(loadConfig()?.r || 3)
-  const restBetweenRounds = ref(loadConfig()?.rb ?? 30)
-  const warmupEnabled = ref(loadConfig()?.we || false)
-  const warmupSeconds = ref(loadConfig()?.ws || 180)
+  const cfg = loadConfig()
+  const exercises = ref(cfg?.ex || defaultExercises())
+  const rounds = ref(cfg?.r || 3)
+  const restBetweenRounds = ref(cfg?.rb ?? 30)
+  const warmupEnabled = ref(cfg?.we || false)
+  const warmupSeconds = ref(cfg?.ws || 180)
 
   const view = ref('editor')
   const flat = ref([])
@@ -172,8 +173,8 @@ export function useWorkout() {
     finished = true
     cancelAnimationFrame(rafId)
     rafId = null
-    // 保持原口径：总用时仍按墙钟计算（含暂停时间），本次只修倒计时对齐
-    totalElapsed.value = Math.floor((performance.now() - startAt) / 1000)
+    // 总用时扣除暂停时间，与实际训练时长一致
+    totalElapsed.value = Math.floor((performance.now() - startAt - pausedMs) / 1000)
     audio?.speak?.('训练完成！辛苦了！')
     view.value = 'summary'
   }

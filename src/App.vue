@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useWorkout } from './composables/useWorkout.js'
 import { useAudio } from './composables/useAudio.js'
@@ -27,6 +27,7 @@ function handleStart() {
     toast('请先添加动作')
     return
   }
+  audio.prime()
   const ok = workout.startWorkout(audio)
   if (!ok) toast('训练内容为空')
 }
@@ -46,7 +47,8 @@ function handleStop() {
 }
 
 function handleRestart() {
-  workout.reset()
+  // 与按钮文案一致：直接重新开始一轮训练
+  handleStart()
 }
 
 function handleLoadBuiltin(key) {
@@ -83,8 +85,8 @@ function handleSavePreset(name) {
 function handleImportPreset(data) {
   workout.exercises.value = data.exercises.map((ex) => ({
     name: String(ex.name || '未命名'),
-    work: Math.max(1, Math.min(600, +ex.work || 30)),
-    rest: Math.max(0, Math.min(600, +ex.rest || 10)),
+    work: Math.max(1, Math.min(600, +ex.work || 1)),
+    rest: Math.max(0, Math.min(600, +ex.rest || 0)),
   }))
   workout.rounds.value = Math.max(1, Math.min(99, +data.rounds || 3))
   workout.restBetweenRounds.value = Math.max(0, Math.min(600, +data.restBetweenRounds || 0))
@@ -127,21 +129,35 @@ function handleRemoveExercise(i) {
 }
 
 // --- Fullscreen ---
+function applyFsClass() {
+  document.body.classList.toggle('fs', !!document.fullscreenElement)
+}
+
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().then(() => (isFullscreen.value = true)).catch(() => {})
+    document.documentElement.requestFullscreen()
+      .then(() => {
+        isFullscreen.value = true
+        applyFsClass()
+      })
+      .catch(() => {})
   } else {
-    document.exitFullscreen().then(() => (isFullscreen.value = false))
+    document.exitFullscreen().then(() => {
+      isFullscreen.value = false
+      applyFsClass()
+    })
   }
 }
 
 function onFS() {
   isFullscreen.value = !!document.fullscreenElement
+  applyFsClass()
 }
 
 // --- Keyboard ---
 function onKey(e) {
   if (workout.view.value !== 'timer') return
+  if (e.repeat) return
   if (e.code === 'Space') {
     e.preventDefault()
     handlePause()
@@ -156,9 +172,47 @@ function onKey(e) {
   }
 }
 
-onMounted(() => document.addEventListener('fullscreenchange', onFS))
-onUnmounted(() => document.removeEventListener('fullscreenchange', onFS))
-document.addEventListener('keydown', onKey)
+// --- Wake Lock：计时页面保持屏幕常亮 ---
+let wakeLock = null
+
+async function acquireWakeLock() {
+  if (!('wakeLock' in navigator) || wakeLock) return
+  try {
+    wakeLock = await navigator.wakeLock.request('screen')
+  } catch { /* 不支持或权限被拒 */ }
+}
+
+function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release().catch(() => {})
+    wakeLock = null
+  }
+}
+
+function onVis() {
+  if (document.visibilityState === 'visible' && workout.view.value === 'timer' && !wakeLock) {
+    acquireWakeLock()
+  }
+}
+
+watch(workout.view, (v) => {
+  document.body.classList.toggle('timer-active', v === 'timer')
+  if (v === 'timer') acquireWakeLock()
+  else releaseWakeLock()
+})
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', onFS)
+  document.addEventListener('keydown', onKey)
+  document.addEventListener('visibilitychange', onVis)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', onFS)
+  document.removeEventListener('keydown', onKey)
+  document.removeEventListener('visibilitychange', onVis)
+  releaseWakeLock()
+})
 </script>
 
 <template>
@@ -211,7 +265,6 @@ document.addEventListener('keydown', onKey)
       :next-name="workout.nextName.value"
       :next-sec="workout.nextSec.value"
       :progress-dots="workout.progressDots.value"
-      :is-fullscreen="isFullscreen"
       @pause="handlePause"
       @skip="handleSkip"
       @stop="handleStop"

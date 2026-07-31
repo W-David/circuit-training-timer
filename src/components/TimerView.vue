@@ -14,10 +14,15 @@ const props = defineProps({
   nextName: String,
   nextSec: Number,
   progressDots: Array,
-  isFullscreen: Boolean,
 })
 
 const emit = defineEmits(['pause', 'skip', 'stop', 'toggle-fs'])
+
+function press(action, e) {
+  // 点击后立刻失焦，避免按钮保持焦点时按空格触发二次点击
+  e.currentTarget.blur()
+  emit(action)
+}
 </script>
 
 <template>
@@ -51,14 +56,14 @@ const emit = defineEmits(['pause', 'skip', 'stop', 'toggle-fs'])
     </div>
 
     <div class="ctrl-row">
-      <button class="btn btn-primary btn-lg" @click="emit('pause')">
+      <button class="btn btn-primary btn-lg" @click="press('pause', $event)">
         <Icon :icon="paused ? 'mdi:play' : 'mdi:pause'" />
         {{ paused ? '继续' : '暂停' }}
       </button>
-      <button class="btn btn-ghost" @click="emit('skip')">
+      <button class="btn btn-ghost" @click="press('skip', $event)">
         <Icon icon="mdi:skip-next" />跳过
       </button>
-      <button class="btn btn-ghost" @click="emit('stop')">
+      <button class="btn btn-ghost" @click="press('stop', $event)">
         <Icon icon="mdi:stop" />结束
       </button>
     </div>

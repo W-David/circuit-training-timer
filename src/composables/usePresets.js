@@ -5,17 +5,12 @@ import { BUILTIN } from '../data/presets.js'
 const PRESETS_KEY = 'ct3-presets'
 
 function loadPresets() {
-  try {
-    return JSON.parse(localStorage.getItem(PRESETS_KEY)) || {}
-  } catch {
-    return {}
-  }
+  const d = load(PRESETS_KEY)
+  return d && typeof d === 'object' ? d : {}
 }
 
 function savePresets(data) {
-  try {
-    localStorage.setItem(PRESETS_KEY, JSON.stringify(data))
-  } catch { /* ignore */ }
+  save(PRESETS_KEY, data)
 }
 
 const state = reactive(loadPresets())

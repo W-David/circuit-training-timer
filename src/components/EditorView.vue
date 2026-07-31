@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import NumInput from './NumInput.vue'
 
@@ -63,11 +63,6 @@ function handleExport() {
   emit('export-preset')
 }
 
-watch(
-  () => [props.rounds, props.restBetweenRounds, props.warmupEnabled, props.warmupSeconds, props.exercises],
-  () => {},
-  { deep: true },
-)
 </script>
 
 <template>

@@ -10,9 +10,14 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 function adjust(delta) {
-  let v = props.modelValue + delta
-  v = Math.max(props.min, Math.min(props.max, v))
-  emit('update:modelValue', v)
+  setValue(props.modelValue + delta)
+}
+
+function setValue(v) {
+  // 直接输入也做校验：非法值回落、四舍五入取整、夹取到 [min, max]
+  let n = Number.isFinite(+v) ? +v : props.min
+  n = Math.max(props.min, Math.min(props.max, Math.round(n)))
+  emit('update:modelValue', n)
 }
 </script>
 
@@ -26,7 +31,7 @@ function adjust(delta) {
       :value="modelValue"
       :min="min"
       :max="max"
-      @input="emit('update:modelValue', +$event.target.value || 0)"
+      @input="setValue($event.target.value)"
     />
     <button @click="adjust(step)">+</button>
     <span v-if="unit" class="unit">{{ unit }}</span>
