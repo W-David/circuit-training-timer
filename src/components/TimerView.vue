@@ -47,7 +47,7 @@ function press(action, e) {
     <div class="progress-row">
       <template v-for="(d, idx) in progressDots" :key="idx">
         <div v-if="d === 's'" class="p-spacer"></div>
-        <div v-else class="p-dot" :class="d.cls" :style="d.sty" :title="d.title"></div>
+        <div v-else class="p-dot" :class="d.cls" :title="d.title"></div>
       </template>
     </div>
 

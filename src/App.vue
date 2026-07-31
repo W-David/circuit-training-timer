@@ -44,6 +44,10 @@ function handleSkip() {
 function handleStop() {
   workout.stop()
   audio.cancel()
+  // 全屏下结束训练：先退出全屏，否则编辑器会被 body.fs 隐藏成空白页
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {})
+  }
 }
 
 function handleRestart() {

@@ -36,7 +36,7 @@ body.timer-active {
   background: #080a10;
 }
 
-body.fs #app {
+body.fs.timer-active #app {
   max-width: 100%;
   padding: 50px;
 }
@@ -47,10 +47,6 @@ body.fs .timer-countdown {
 
 body.fs .timer-ex-name {
   font-size: min(8vw, 5rem) !important;
-}
-
-body.fs .editor-block {
-  display: none;
 }
 
 #app {
@@ -492,9 +488,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .flip-digit {
   position: relative;
-  display: inline-block;
-  width: auto;
-  min-width: 0.55em;
+  display: inline-grid;
+  grid-template-rows: 1fr;
   height: 1em;
   perspective: 600px;
   vertical-align: top;
@@ -507,9 +502,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .flip-digit .card-up,
 .flip-digit .card-lo {
-  position: absolute;
-  left: 0;
-  right: 0;
+  grid-area: 1 / 1;
   height: 50%;
   overflow: hidden;
   display: flex;
@@ -517,7 +510,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .flip-digit .card-up {
-  top: 0;
+  align-self: start;
   align-items: flex-start;
   background: linear-gradient(180deg, #2a3040 0%, #1e2430 100%);
   border-radius: 6px 6px 0 0;
@@ -526,7 +519,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .flip-digit .card-lo {
-  bottom: 0;
+  align-self: end;
   align-items: flex-end;
   background: linear-gradient(180deg, #161b26 0%, #0e1219 100%);
   border-radius: 0 0 6px 6px;
@@ -548,9 +541,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .flip-digit .fold-top,
 .flip-digit .fold-bot {
-  position: absolute;
-  left: 0;
-  right: 0;
+  grid-area: 1 / 1;
   height: 50%;
   overflow: hidden;
   display: flex;
@@ -559,7 +550,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .flip-digit .fold-top {
-  top: 0;
+  align-self: start;
   align-items: flex-start;
   background: linear-gradient(180deg, #2a3040 0%, #1e2430 100%);
   border-radius: 6px 6px 0 0;
@@ -570,7 +561,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .flip-digit .fold-bot {
-  bottom: 0;
+  align-self: end;
   align-items: flex-end;
   background: linear-gradient(180deg, #161b26 0%, #0e1219 100%);
   border-radius: 0 0 6px 6px;
@@ -628,7 +619,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .progress-row {
   display: flex;
   justify-content: center;
-  gap: 5px;
+  gap: 8px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
@@ -640,17 +631,21 @@ input[type="number"]::-webkit-inner-spin-button {
   transition: all 0.3s;
 }
 
-.p-dot.past {
+.p-dot.work {
+  /* 未完成 */
   background: #2a2d38;
 }
 
-.p-dot.work {
+.p-dot.past {
+  /* 已完成 */
   background: var(--work);
 }
 
 .p-dot.now {
+  /* 正在完成 */
+  background: var(--work);
   transform: scale(2);
-  box-shadow: 0 0 10px currentColor;
+  box-shadow: 0 0 10px var(--work);
 }
 
 .p-spacer {

@@ -32,6 +32,7 @@ export function useWorkout() {
   let skipAdjustMs = 0   // 跳过动作产生的进度偏移
   let lastTs = null      // 上一帧时间戳，用于识别后台恢复
   let finished = false
+  let audioRef = null    // 当前训练使用的音频对象（rAF 回调内引用）
 
   function persist() {
     save(CONFIG_KEY, {
@@ -129,16 +130,14 @@ export function useWorkout() {
         const si = flat.value.findIndex(
           (s) => s.round === r && s.exIndex === i && s.type === 'work',
         )
+        // 未完成：灰色；已完成：绿色；正在完成：放大 + 发光
         let cls = 'work'
-        let sty = { background: 'var(--work)' }
         if (si >= 0 && si < cur.value) {
           cls = 'past'
-          sty = { background: '#2a2d38' }
         } else if (si === cur.value) {
           cls = 'now'
-          sty = { background: 'var(--work)', color: 'var(--work)' }
         }
-        dots.push({ cls, sty, title: exercises.value[i].name })
+        dots.push({ cls, title: exercises.value[i].name })
       }
       if (r < rounds.value - 1) dots.push('s')
     }
@@ -150,6 +149,7 @@ export function useWorkout() {
     buildSchedule()
     if (!flat.value.length) return false
     if (rafId) cancelAnimationFrame(rafId)
+    audioRef = audio
     cur.value = 0
     remaining.value = flat.value[0].seconds
     paused.value = false
@@ -162,20 +162,20 @@ export function useWorkout() {
     view.value = 'timer'
 
     const s = flat.value[0]
-    if (s.type === 'warmup') audio?.speak?.('热身开始')
-    else if (s.type === 'work') audio?.speak?.(s.name + '，准备开始')
+    if (s.type === 'warmup') audioRef?.speak?.('热身开始')
+    else if (s.type === 'work') audioRef?.speak?.(s.name + '，准备开始')
 
     rafId = requestAnimationFrame(frame)
     return true
   }
 
-  function finish(audio) {
+  function finish() {
     finished = true
     cancelAnimationFrame(rafId)
     rafId = null
     // 总用时扣除暂停时间，与实际训练时长一致
     totalElapsed.value = Math.floor((performance.now() - startAt - pausedMs) / 1000)
-    audio?.speak?.('训练完成！辛苦了！')
+    audioRef?.speak?.('训练完成！辛苦了！')
     view.value = 'summary'
   }
 
@@ -206,8 +206,8 @@ export function useWorkout() {
 
     if (idx === -1) {
       remaining.value = 0
-      if (!catchUp) audio?.beep?.(660, 0.5, 0.4)
-      finish(audio)
+      if (!catchUp) audioRef?.beep?.(660, 0.5, 0.4)
+      finish()
       return
     }
 
@@ -215,20 +215,20 @@ export function useWorkout() {
       // 进入新步骤
       cur.value = idx
       if (!catchUp) {
-        audio?.beep?.(660, 0.5, 0.4)
+        audioRef?.beep?.(660, 0.5, 0.4)
         const s = flat.value[idx]
-        if (s.type === 'work') audio?.speak?.(s.name)
-        else if (s.type === 'roundRest') audio?.speak?.('本轮结束，休息一下')
+        if (s.type === 'work') audioRef?.speak?.(s.name)
+        else if (s.type === 'roundRest') audioRef?.speak?.('本轮结束，休息一下')
       }
     } else if (!catchUp && remaining.value < oldRem) {
       // 同一步骤内跨过关键时间点：5 秒播报下一个动作，3/2/1 秒蜂鸣
       if (oldRem > 5 && remaining.value <= 5 && currentStepType.value === 'work') {
         const nx = nextWorkName.value
-        if (nx) audio?.speak?.('下一个，' + nx)
+        if (nx) audioRef?.speak?.('下一个，' + nx)
       }
       for (let t = 3; t >= 1; t--) {
         if (oldRem > t && remaining.value <= t) {
-          audio?.beep?.(600 + (3 - t) * 100, 0.15)
+          audioRef?.beep?.(600 + (3 - t) * 100, 0.15)
         }
       }
     }
