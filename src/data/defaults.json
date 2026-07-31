@@ -1,0 +1,12 @@
+{
+  "exercises": [
+    { "name": "深蹲", "work": 40, "rest": 20 },
+    { "name": "俯卧撑", "work": 40, "rest": 20 },
+    { "name": "波比跳", "work": 40, "rest": 20 }
+  ],
+  "rounds": 3,
+  "restBetweenRounds": 30,
+  "warmupEnabled": false,
+  "warmupSeconds": 180,
+  "newExercise": { "work": 30, "rest": 10 }
+}

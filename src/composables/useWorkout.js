@@ -1,6 +1,7 @@
 import { ref, computed, watch } from 'vue'
 import { load, save } from './useStorage.js'
-import { defaultExercises, makeExercise } from '../data/exercises.js'
+import defaults from '../data/defaults.json'
+import { useVoicePrompts } from './useVoicePrompts.js'
 
 const CONFIG_KEY = 'ct3-config'
 
@@ -11,11 +12,11 @@ function loadConfig() {
 
 export function useWorkout() {
   const cfg = loadConfig()
-  const exercises = ref(cfg?.ex || defaultExercises())
-  const rounds = ref(cfg?.r || 3)
-  const restBetweenRounds = ref(cfg?.rb ?? 30)
-  const warmupEnabled = ref(cfg?.we || false)
-  const warmupSeconds = ref(cfg?.ws || 180)
+  const exercises = ref(cfg?.ex || JSON.parse(JSON.stringify(defaults.exercises)))
+  const rounds = ref(cfg?.r ?? defaults.rounds)
+  const restBetweenRounds = ref(cfg?.rb ?? defaults.restBetweenRounds)
+  const warmupEnabled = ref(cfg?.we || defaults.warmupEnabled)
+  const warmupSeconds = ref(cfg?.ws ?? defaults.warmupSeconds)
 
   const view = ref('editor')
   const flat = ref([])
@@ -33,6 +34,7 @@ export function useWorkout() {
   let lastTs = null      // 上一帧时间戳，用于识别后台恢复
   let finished = false
   let audioRef = null    // 当前训练使用的音频对象（rAF 回调内引用）
+  let voice = null       // 当前训练的语音提示模块
 
   function persist() {
     save(CONFIG_KEY, {
@@ -45,7 +47,7 @@ export function useWorkout() {
   }
 
   function addExercise() {
-    exercises.value.push(makeExercise())
+    exercises.value.push({ name: '', ...defaults.newExercise })
     persist()
   }
 
@@ -116,13 +118,6 @@ export function useWorkout() {
 
   const nextSec = computed(() => (nextStep.value ? nextStep.value.seconds : 0))
 
-  const nextWorkName = computed(() => {
-    for (let i = cur.value + 1; i < flat.value.length; i++) {
-      if (flat.value[i].type === 'work') return flat.value[i].name
-    }
-    return ''
-  })
-
   const progressDots = computed(() => {
     const dots = []
     for (let r = 0; r < rounds.value; r++) {
@@ -150,6 +145,7 @@ export function useWorkout() {
     if (!flat.value.length) return false
     if (rafId) cancelAnimationFrame(rafId)
     audioRef = audio
+    voice = useVoicePrompts(audio)
     cur.value = 0
     remaining.value = flat.value[0].seconds
     paused.value = false
@@ -162,8 +158,7 @@ export function useWorkout() {
     view.value = 'timer'
 
     const s = flat.value[0]
-    if (s.type === 'warmup') audioRef?.speak?.('热身开始')
-    else if (s.type === 'work') audioRef?.speak?.(s.name + '，准备开始')
+    voice?.onStart(s)
 
     rafId = requestAnimationFrame(frame)
     return true
@@ -175,7 +170,7 @@ export function useWorkout() {
     rafId = null
     // 总用时扣除暂停时间，与实际训练时长一致
     totalElapsed.value = Math.floor((performance.now() - startAt - pausedMs) / 1000)
-    audioRef?.speak?.('训练完成！辛苦了！')
+    voice?.onFinish()
     view.value = 'summary'
   }
 
@@ -217,14 +212,14 @@ export function useWorkout() {
       if (!catchUp) {
         audioRef?.beep?.(660, 0.5, 0.4)
         const s = flat.value[idx]
-        if (s.type === 'work') audioRef?.speak?.(s.name)
-        else if (s.type === 'roundRest') audioRef?.speak?.('本轮结束，休息一下')
+        voice?.onStepChange(s)
       }
     } else if (!catchUp && remaining.value < oldRem) {
-      // 同一步骤内跨过关键时间点：5 秒播报下一个动作，3/2/1 秒蜂鸣
-      if (oldRem > 5 && remaining.value <= 5 && currentStepType.value === 'work') {
-        const nx = nextWorkName.value
-        if (nx) audioRef?.speak?.('下一个，' + nx)
+      // 同一步骤内跨过关键时间点：提前 5 秒语音播报，3/2/1 秒蜂鸣
+      const s = flat.value[idx]
+      const next = flat.value[idx + 1] || null
+      if (oldRem > 5 && remaining.value <= 5) {
+        voice?.onNearEnd(s, next)
       }
       for (let t = 3; t >= 1; t--) {
         if (oldRem > t && remaining.value <= t) {

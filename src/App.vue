@@ -1,27 +1,110 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, provide } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useRouter } from 'vue-router'
 import { useWorkout } from './composables/useWorkout.js'
 import { useAudio } from './composables/useAudio.js'
 import { usePresets } from './composables/usePresets.js'
-import EditorView from './components/EditorView.vue'
 import TimerView from './components/TimerView.vue'
 import SummaryView from './components/SummaryView.vue'
 
+const router = useRouter()
 const workout = useWorkout()
 const audio = useAudio()
 const presets = usePresets()
 
 const isFullscreen = ref(false)
 const toastText = ref('')
-const activePresetKey = ref(null)
 let toastTimer = null
+
+provide('workout', workout)
+provide('presets', presets)
 
 function toast(msg) {
   toastText.value = msg
   clearTimeout(toastTimer)
   toastTimer = setTimeout(() => (toastText.value = ''), 2000)
 }
+
+const actions = {
+  startPreset(key) {
+    const p = presets.loadBuiltin(key) || presets.customPresets[key] || null
+    if (!p) return
+    workout.loadPreset(p)
+    audio.prime()
+    const ok = workout.startWorkout(audio)
+    if (!ok) toast('训练内容为空')
+  },
+  savePreset(name, key) {
+    const k = presets.savePreset(
+      name,
+      {
+        exercises: JSON.parse(JSON.stringify(workout.exercises.value)),
+        rounds: workout.rounds.value,
+        restBetweenRounds: workout.restBetweenRounds.value,
+        warmupEnabled: workout.warmupEnabled.value,
+        warmupSeconds: workout.warmupSeconds.value,
+      },
+      key,
+    )
+    toast(key ? '已更新「' + name + '」' : '已保存「' + name + '」')
+    router.push('/preset/' + k)
+  },
+  deletePreset(key) {
+    const name = presets.customPresets[key]?.name || '未命名'
+    presets.deletePreset(key)
+    toast('已删除「' + name + '」')
+  },
+  importPreset(data) {
+    workout.exercises.value = data.exercises.map((ex) => ({
+      name: String(ex.name || '未命名'),
+      work: Math.max(1, Math.min(600, +ex.work || 1)),
+      rest: Math.max(0, Math.min(600, +ex.rest || 0)),
+    }))
+    workout.rounds.value = Math.max(1, Math.min(99, +data.rounds || 3))
+    workout.restBetweenRounds.value = Math.max(0, Math.min(600, +data.restBetweenRounds || 0))
+    workout.warmupEnabled.value = !!data.warmupEnabled
+    workout.warmupSeconds.value = Math.max(10, Math.min(600, +data.warmupSeconds || 180))
+    workout.persist()
+    toast('已导入 ' + workout.exercises.value.length + ' 个动作')
+  },
+  exportPreset(name = '', data = null) {
+    const cfg = data || {
+      exercises: workout.exercises.value,
+      rounds: workout.rounds.value,
+      restBetweenRounds: workout.restBetweenRounds.value,
+      warmupEnabled: workout.warmupEnabled.value,
+      warmupSeconds: workout.warmupSeconds.value,
+    }
+    const payload = {
+      v: 1,
+      name: name || '',
+      exercises: cfg.exercises.map((e) => ({
+        name: e.name,
+        work: e.work,
+        rest: e.rest,
+      })),
+      rounds: cfg.rounds,
+      restBetweenRounds: cfg.restBetweenRounds,
+      warmupEnabled: cfg.warmupEnabled,
+      warmupSeconds: cfg.warmupSeconds,
+      exportedAt: new Date().toISOString(),
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const base = String(name || '')
+      .trim()
+      .replace(/[\\/:*?"<>|]/g, '-') || '预设'
+    a.download = base + '-' + Date.now() + '.json'
+    a.click()
+    URL.revokeObjectURL(url)
+    toast('已导出')
+  },
+}
+
+provide('actions', actions)
 
 function handleStart() {
   if (!workout.exercises.value.length) {
@@ -45,7 +128,7 @@ function handleSkip() {
 function handleStop() {
   workout.stop()
   audio.cancel()
-  // 全屏下结束训练：先退出全屏，否则编辑器会被 body.fs 隐藏成空白页
+  // 全屏下结束训练：先退出全屏，否则页面会被 body.fs 隐藏成空白页
   if (document.fullscreenElement) {
     document.exitFullscreen().catch(() => {})
   }
@@ -54,92 +137,6 @@ function handleStop() {
 function handleRestart() {
   // 与按钮文案一致：直接重新开始一轮训练
   handleStart()
-}
-
-function handleLoadBuiltin(key) {
-  const p = presets.loadBuiltin(key)
-  if (!p) return
-  workout.loadPreset(p)
-  activePresetKey.value = key
-  toast('已加载「' + p.name + '」')
-}
-
-function handleLoadCustom(key) {
-  const p = presets.customPresets[key]
-  if (!p) return
-  workout.loadPreset(p)
-  activePresetKey.value = key
-  toast('已加载「' + p.name + '」')
-}
-
-function handleClearPreset() {
-  activePresetKey.value = null
-}
-
-function handleDeleteCustom(key) {
-  const name = presets.customPresets[key]?.name || '未命名'
-  presets.deletePreset(key)
-  if (activePresetKey.value === key) activePresetKey.value = null
-  toast('已删除「' + name + '」')
-}
-
-function handleSavePreset(name, key) {
-  const k = presets.savePreset(name, {
-    exercises: JSON.parse(JSON.stringify(workout.exercises.value)),
-    rounds: workout.rounds.value,
-    restBetweenRounds: workout.restBetweenRounds.value,
-    warmupEnabled: workout.warmupEnabled.value,
-    warmupSeconds: workout.warmupSeconds.value,
-  }, key)
-  activePresetKey.value = k
-  toast(key ? '已更新「' + name + '」' : '已保存「' + name + '」')
-}
-
-function handleImportPreset(data) {
-  workout.exercises.value = data.exercises.map((ex) => ({
-    name: String(ex.name || '未命名'),
-    work: Math.max(1, Math.min(600, +ex.work || 1)),
-    rest: Math.max(0, Math.min(600, +ex.rest || 0)),
-  }))
-  workout.rounds.value = Math.max(1, Math.min(99, +data.rounds || 3))
-  workout.restBetweenRounds.value = Math.max(0, Math.min(600, +data.restBetweenRounds || 0))
-  workout.warmupEnabled.value = !!data.warmupEnabled
-  workout.warmupSeconds.value = Math.max(10, Math.min(600, +data.warmupSeconds || 180))
-  workout.persist()
-  activePresetKey.value = null
-  toast('已导入 ' + workout.exercises.value.length + ' 个动作')
-}
-
-function handleExportPreset() {
-  const data = {
-    v: 1,
-    exercises: workout.exercises.value.map((e) => ({
-      name: e.name,
-      work: e.work,
-      rest: e.rest,
-    })),
-    rounds: workout.rounds.value,
-    restBetweenRounds: workout.restBetweenRounds.value,
-    warmupEnabled: workout.warmupEnabled.value,
-    warmupSeconds: workout.warmupSeconds.value,
-    exportedAt: new Date().toISOString(),
-  }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'workout-' + new Date().toISOString().slice(0, 10) + '.json'
-  a.click()
-  URL.revokeObjectURL(url)
-  toast('已导出')
-}
-
-function handleAddExercise() {
-  workout.addExercise()
-}
-
-function handleRemoveExercise(i) {
-  workout.removeExercise(i)
 }
 
 // --- Fullscreen ---
@@ -238,37 +235,11 @@ onUnmounted(() => {
     <Icon :icon="isFullscreen ? 'mdi:fullscreen-exit' : 'mdi:fullscreen'" />
   </button>
 
-  <Transition name="fade" mode="out-in">
-    <EditorView
-      v-if="workout.view.value === 'editor'"
-      key="editor"
-      :exercises="workout.exercises.value"
-      :rounds="workout.rounds.value"
-      :rest-between-rounds="workout.restBetweenRounds.value"
-      :warmup-enabled="workout.warmupEnabled.value"
-      :warmup-seconds="workout.warmupSeconds.value"
-      :builtin-presets="presets.builtinPresets"
-      :custom-presets="presets.customPresets"
-      :custom-count="presets.customCount.value"
-      :active-preset-key="activePresetKey"
-      @update:rounds="workout.rounds.value = $event"
-      @update:rest-between-rounds="workout.restBetweenRounds.value = $event"
-      @update:warmup-enabled="workout.warmupEnabled.value = $event"
-      @update:warmup-seconds="workout.warmupSeconds.value = $event"
-      @add-exercise="handleAddExercise"
-      @remove-exercise="handleRemoveExercise"
-      @start="handleStart"
-      @load-builtin="handleLoadBuiltin"
-      @load-custom="handleLoadCustom"
-      @delete-custom="handleDeleteCustom"
-      @clear-preset="handleClearPreset"
-      @save-preset="handleSavePreset"
-      @import-preset="handleImportPreset"
-      @export-preset="handleExportPreset"
-    />
+  <RouterView v-if="workout.view.value === 'editor'" />
 
+  <Transition v-else name="fade" mode="out-in">
     <TimerView
-      v-else-if="workout.view.value === 'timer'"
+      v-if="workout.view.value === 'timer'"
       key="timer"
       :remaining="workout.remaining.value"
       :paused="workout.paused.value"
@@ -286,7 +257,6 @@ onUnmounted(() => {
       @stop="handleStop"
       @toggle-fs="toggleFullscreen"
     />
-
     <SummaryView
       v-else
       key="summary"

@@ -14,6 +14,9 @@ importers:
       vue:
         specifier: ^3.5.13
         version: 3.5.40
+      vue-router:
+        specifier: ^4.6.4
+        version: 4.6.4(vue@3.5.40)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.2.3
@@ -526,6 +529,9 @@ packages:
   '@vue/compiler-ssr@3.5.40':
     resolution: {integrity: sha512-rrE5xiXG663+vHCHa3J9p2z5OcBRjXmoqenprJxAFQxg5pSshzeBiCE6pu46axapRJ2Adk0YDA2BRZVjiHXnhg==}
 
+  '@vue/devtools-api@6.6.4':
+    resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
+
   '@vue/devtools-core@8.2.1':
     resolution: {integrity: sha512-s/VfAY9oDTb/kFEWmy461jaFde2MIV1RO/gi1vwM+PAZBZ/Pc2Ndu3BNBdZUze8QDUuyYvElbEEGA83syjJfzA==}
     peerDependencies:
@@ -846,6 +852,11 @@ packages:
         optional: true
       yaml:
         optional: true
+
+  vue-router@4.6.4:
+    resolution: {integrity: sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==}
+    peerDependencies:
+      vue: ^3.5.0
 
   vue@3.5.40:
     resolution: {integrity: sha512-+8PJ4SJXdn/cHGImF4CKdxlWHIN5Dkt7DoufRREM6h6uVCx2m7QxgcEQmmzyOK8A9mcafg7sFbJFYsdFVubTig==}
@@ -1302,6 +1313,8 @@ snapshots:
       '@vue/compiler-dom': 3.5.40
       '@vue/shared': 3.5.40
 
+  '@vue/devtools-api@6.6.4': {}
+
   '@vue/devtools-core@8.2.1(vue@3.5.40)':
     dependencies:
       '@vue/devtools-kit': 8.2.1
@@ -1618,6 +1631,11 @@ snapshots:
       tinyglobby: 0.2.17
     optionalDependencies:
       fsevents: 2.3.3
+
+  vue-router@4.6.4(vue@3.5.40):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.40
 
   vue@3.5.40:
     dependencies:

@@ -1,6 +1,6 @@
 import { reactive, computed } from 'vue'
 import { load, save } from './useStorage.js'
-import { BUILTIN } from '../data/presets.js'
+import BUILTIN from '../data/presets.json'
 
 const PRESETS_KEY = 'ct3-presets'
 
@@ -20,7 +20,8 @@ export function usePresets() {
   const customCount = computed(() => Object.keys(state).length)
 
   function savePreset(name, config, key) {
-    const k = key || 'c_' + Date.now()
+    // 用「预设名-时间戳」作为保存标识，避免同名预设互相覆盖
+    const k = key || name + '-' + Date.now()
     state[k] = { name, ...config }
     savePresets(state)
     return k
