@@ -23,8 +23,14 @@ export function useWorkout() {
   const paused = ref(false)
   const totalElapsed = ref(0)
 
-  let iv = null
-  let st = 0
+  // rAF 驱动的真实时间计时状态
+  let rafId = null
+  let startAt = 0        // 开始训练时的 performance.now()
+  let pausedMs = 0       // 累计暂停毫秒（暂停时间不计入训练进度）
+  let pauseStartAt = 0   // 本次暂停开始的时间
+  let skipAdjustMs = 0   // 跳过动作产生的进度偏移
+  let lastTs = null      // 上一帧时间戳，用于识别后台恢复
+  let finished = false
 
   function persist() {
     save(CONFIG_KEY, {
@@ -142,67 +148,127 @@ export function useWorkout() {
     if (!exercises.value.length) return false
     buildSchedule()
     if (!flat.value.length) return false
+    if (rafId) cancelAnimationFrame(rafId)
     cur.value = 0
     remaining.value = flat.value[0].seconds
     paused.value = false
     totalElapsed.value = 0
-    st = Date.now()
+    startAt = performance.now()
+    pausedMs = 0
+    skipAdjustMs = 0
+    lastTs = null
+    finished = false
     view.value = 'timer'
 
     const s = flat.value[0]
     if (s.type === 'warmup') audio?.speak?.('热身开始')
     else if (s.type === 'work') audio?.speak?.(s.name + '，准备开始')
 
-    iv = setInterval(() => tick(audio), 1000)
+    rafId = requestAnimationFrame(frame)
     return true
   }
 
-  function tick(audio) {
-    if (paused.value) return
-    remaining.value--
-    if (remaining.value === 5 && currentStepType.value === 'work') {
-      const nx = nextWorkName.value
-      if (nx) audio?.speak?.('下一个，' + nx)
-    }
-    if (remaining.value <= 3 && remaining.value > 0) {
-      audio?.beep?.(600 + (3 - remaining.value) * 100, 0.15)
-    }
-    if (remaining.value <= 0) {
-      audio?.beep?.(660, 0.5, 0.4)
-      if (cur.value + 1 >= flat.value.length) {
-        totalElapsed.value = Math.floor((Date.now() - st) / 1000)
-        clearInterval(iv)
-        audio?.speak?.('训练完成！辛苦了！')
-        view.value = 'summary'
-        return
+  function finish(audio) {
+    finished = true
+    cancelAnimationFrame(rafId)
+    rafId = null
+    // 保持原口径：总用时仍按墙钟计算（含暂停时间），本次只修倒计时对齐
+    totalElapsed.value = Math.floor((performance.now() - startAt) / 1000)
+    audio?.speak?.('训练完成！辛苦了！')
+    view.value = 'summary'
+  }
+
+  function frame(ts) {
+    if (finished || paused.value || view.value !== 'timer') return
+
+    // 帧间隔超过 500ms 说明期间标签页在后台/锁屏，恢复后只补进度、不播声音
+    const catchUp = lastTs !== null && ts - lastTs > 500
+    lastTs = ts
+
+    // 用真实时间戳计算已进行的训练进度（暂停时间不计入）
+    const elapsedMs = ts - startAt - pausedMs + skipAdjustMs
+    const oldCur = cur.value
+    const oldRem = remaining.value
+
+    // 按时间线累加各步骤时长，找到当前步骤与剩余秒数
+    let acc = 0
+    let idx = -1
+    for (let i = 0; i < flat.value.length; i++) {
+      const stepMs = flat.value[i].seconds * 1000
+      if (elapsedMs < acc + stepMs) {
+        idx = i
+        remaining.value = (acc + stepMs - elapsedMs) / 1000
+        break
       }
-      cur.value++
-      remaining.value = flat.value[cur.value].seconds
-      const s = flat.value[cur.value]
-      if (s.type === 'work') audio?.speak?.(s.name)
-      else if (s.type === 'roundRest') audio?.speak?.('本轮结束，休息一下')
+      acc += stepMs
     }
+
+    if (idx === -1) {
+      remaining.value = 0
+      if (!catchUp) audio?.beep?.(660, 0.5, 0.4)
+      finish(audio)
+      return
+    }
+
+    if (idx !== oldCur) {
+      // 进入新步骤
+      cur.value = idx
+      if (!catchUp) {
+        audio?.beep?.(660, 0.5, 0.4)
+        const s = flat.value[idx]
+        if (s.type === 'work') audio?.speak?.(s.name)
+        else if (s.type === 'roundRest') audio?.speak?.('本轮结束，休息一下')
+      }
+    } else if (!catchUp && remaining.value < oldRem) {
+      // 同一步骤内跨过关键时间点：5 秒播报下一个动作，3/2/1 秒蜂鸣
+      if (oldRem > 5 && remaining.value <= 5 && currentStepType.value === 'work') {
+        const nx = nextWorkName.value
+        if (nx) audio?.speak?.('下一个，' + nx)
+      }
+      for (let t = 3; t >= 1; t--) {
+        if (oldRem > t && remaining.value <= t) {
+          audio?.beep?.(600 + (3 - t) * 100, 0.15)
+        }
+      }
+    }
+
+    rafId = requestAnimationFrame(frame)
   }
 
   function togglePause() {
     paused.value = !paused.value
     if (paused.value) {
+      pauseStartAt = performance.now()
+      cancelAnimationFrame(rafId)
+      rafId = null
       if ('speechSynthesis' in window) speechSynthesis.cancel()
+    } else {
+      pausedMs += performance.now() - pauseStartAt
+      lastTs = null
+      rafId = requestAnimationFrame(frame)
     }
   }
 
   function skip() {
+    if (view.value !== 'timer' || finished) return
+    if (remaining.value > 1) {
+      skipAdjustMs += (remaining.value - 1) * 1000
+    }
     remaining.value = 1
   }
 
   function stop() {
-    clearInterval(iv)
+    cancelAnimationFrame(rafId)
+    rafId = null
+    finished = true
     if ('speechSynthesis' in window) speechSynthesis.cancel()
     view.value = 'editor'
   }
 
   function reset() {
-    clearInterval(iv)
+    cancelAnimationFrame(rafId)
+    rafId = null
+    finished = false
     view.value = 'editor'
   }
 
