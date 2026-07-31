@@ -19,10 +19,11 @@ export function usePresets() {
   const customPresets = state
   const customCount = computed(() => Object.keys(state).length)
 
-  function savePreset(name, config) {
-    const key = 'c_' + Date.now()
-    state[key] = { name, ...config }
+  function savePreset(name, config, key) {
+    const k = key || 'c_' + Date.now()
+    state[k] = { name, ...config }
     savePresets(state)
+    return k
   }
 
   function deletePreset(key) {

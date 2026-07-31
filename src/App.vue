@@ -14,6 +14,7 @@ const presets = usePresets()
 
 const isFullscreen = ref(false)
 const toastText = ref('')
+const activePresetKey = ref(null)
 let toastTimer = null
 
 function toast(msg) {
@@ -59,6 +60,7 @@ function handleLoadBuiltin(key) {
   const p = presets.loadBuiltin(key)
   if (!p) return
   workout.loadPreset(p)
+  activePresetKey.value = key
   toast('已加载「' + p.name + '」')
 }
 
@@ -66,24 +68,31 @@ function handleLoadCustom(key) {
   const p = presets.customPresets[key]
   if (!p) return
   workout.loadPreset(p)
+  activePresetKey.value = key
   toast('已加载「' + p.name + '」')
+}
+
+function handleClearPreset() {
+  activePresetKey.value = null
 }
 
 function handleDeleteCustom(key) {
   const name = presets.customPresets[key]?.name || '未命名'
   presets.deletePreset(key)
+  if (activePresetKey.value === key) activePresetKey.value = null
   toast('已删除「' + name + '」')
 }
 
-function handleSavePreset(name) {
-  presets.savePreset(name, {
+function handleSavePreset(name, key) {
+  const k = presets.savePreset(name, {
     exercises: JSON.parse(JSON.stringify(workout.exercises.value)),
     rounds: workout.rounds.value,
     restBetweenRounds: workout.restBetweenRounds.value,
     warmupEnabled: workout.warmupEnabled.value,
     warmupSeconds: workout.warmupSeconds.value,
-  })
-  toast('已保存「' + name + '」')
+  }, key)
+  activePresetKey.value = k
+  toast(key ? '已更新「' + name + '」' : '已保存「' + name + '」')
 }
 
 function handleImportPreset(data) {
@@ -97,6 +106,7 @@ function handleImportPreset(data) {
   workout.warmupEnabled.value = !!data.warmupEnabled
   workout.warmupSeconds.value = Math.max(10, Math.min(600, +data.warmupSeconds || 180))
   workout.persist()
+  activePresetKey.value = null
   toast('已导入 ' + workout.exercises.value.length + ' 个动作')
 }
 
@@ -240,6 +250,7 @@ onUnmounted(() => {
       :builtin-presets="presets.builtinPresets"
       :custom-presets="presets.customPresets"
       :custom-count="presets.customCount.value"
+      :active-preset-key="activePresetKey"
       @update:rounds="workout.rounds.value = $event"
       @update:rest-between-rounds="workout.restBetweenRounds.value = $event"
       @update:warmup-enabled="workout.warmupEnabled.value = $event"
@@ -250,6 +261,7 @@ onUnmounted(() => {
       @load-builtin="handleLoadBuiltin"
       @load-custom="handleLoadCustom"
       @delete-custom="handleDeleteCustom"
+      @clear-preset="handleClearPreset"
       @save-preset="handleSavePreset"
       @import-preset="handleImportPreset"
       @export-preset="handleExportPreset"
