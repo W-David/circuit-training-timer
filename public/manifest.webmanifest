@@ -1,0 +1,18 @@
+{
+  "name": "循环训练计时器",
+  "short_name": "循环计时",
+  "description": "电路/循环训练计时器",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1017",
+  "theme_color": "#0d1017",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

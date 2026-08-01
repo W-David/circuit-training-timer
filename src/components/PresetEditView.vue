@@ -1,38 +1,134 @@
 <script setup>
 import { Icon } from '@iconify/vue'
-import { ref, inject, watch } from 'vue'
+import { reactive, ref, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NumInput from './NumInput.vue'
+import defaults from '../data/defaults.json'
+import {
+  PRESET_ICONS,
+  normalizePreset,
+  cloneConfig,
+  parseImportPayload,
+} from '../utils/presetFormat.js'
 
-const workout = inject('workout')
 const actions = inject('actions')
 const presets = inject('presets')
 const route = useRoute()
 const router = useRouter()
 
-const showSaveModal = ref(false)
-const saveName = ref('')
-const importedName = ref('')
 const importInput = ref(null)
 const editKey = ref(null)
-const editName = ref('')
+const dragFrom = ref(-1)
+const showExportModal = ref(false)
+const exportName = ref('')
+
+const draft = reactive({
+  name: '',
+  icon: 'mdi:tune-variant',
+  exercises: [],
+  rounds: defaults.rounds,
+  restBetweenRounds: defaults.restBetweenRounds,
+  warmupEnabled: defaults.warmupEnabled,
+  warmupSeconds: defaults.warmupSeconds,
+})
+
+function emptyDraft() {
+  return normalizePreset({
+    name: '',
+    icon: 'mdi:tune-variant',
+    exercises: JSON.parse(JSON.stringify(defaults.exercises)),
+    rounds: defaults.rounds,
+    restBetweenRounds: defaults.restBetweenRounds,
+    warmupEnabled: defaults.warmupEnabled,
+    warmupSeconds: defaults.warmupSeconds,
+  }, { newExercise: defaults.newExercise })
+}
+
+function applyToDraft(cfg) {
+  const n = normalizePreset(cfg, { newExercise: defaults.newExercise })
+  draft.name = n.name
+  draft.icon = n.icon
+  draft.exercises = n.exercises.map((e) => ({ ...e }))
+  draft.rounds = n.rounds
+  draft.restBetweenRounds = n.restBetweenRounds
+  draft.warmupEnabled = n.warmupEnabled
+  draft.warmupSeconds = n.warmupSeconds
+}
+
+function draftPayload() {
+  return cloneConfig(draft)
+}
+
+function persistNewDraft() {
+  if (editKey.value) return
+  presets.saveDraft(draftPayload())
+}
 
 function init() {
   const key = route.params.key || null
   const p = key ? presets.customPresets[key] : null
-  // 编辑入口只允许自定义预设；系统预设或已删除的方案不允许进入编辑
   if (key && !p) {
     router.replace('/')
     return
   }
   editKey.value = key
-  editName.value = p?.name || ''
-  importedName.value = ''
-  saveName.value = ''
-  if (p) workout.loadPreset(p)
+
+  if (p) {
+    applyToDraft(p)
+    return
+  }
+
+  // 新建：恢复未保存草稿，否则默认模板
+  const saved = presets.loadDraft()
+  if (saved) applyToDraft(saved)
+  else applyToDraft(emptyDraft())
 }
 
 watch(() => route.fullPath, init, { immediate: true })
+
+watch(
+  draft,
+  () => {
+    persistNewDraft()
+  },
+  { deep: true },
+)
+
+function addExercise() {
+  draft.exercises.push({
+    name: '',
+    work: defaults.newExercise.work,
+    rest: defaults.newExercise.rest,
+  })
+}
+
+function removeExercise(i) {
+  draft.exercises.splice(i, 1)
+}
+
+function onDragStart(i, e) {
+  dragFrom.value = i
+  e.dataTransfer.effectAllowed = 'move'
+  e.dataTransfer.setData('text/plain', String(i))
+}
+
+function onDragOver(e) {
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'move'
+}
+
+function onDrop(i, e) {
+  e.preventDefault()
+  const from = dragFrom.value
+  dragFrom.value = -1
+  if (from < 0 || from === i) return
+  const item = draft.exercises.splice(from, 1)[0]
+  draft.exercises.splice(i, 0, item)
+}
+
+function onDragEnd() {
+  dragFrom.value = -1
+}
 
 function handleImport(e) {
   const file = e.target.files[0]
@@ -40,82 +136,138 @@ function handleImport(e) {
   const reader = new FileReader()
   reader.onload = (ev) => {
     try {
-      const d = JSON.parse(ev.target.result)
-      if (!d.exercises?.length) throw new Error('无效数据')
-      importedName.value = String(d.name || '').trim()
-      actions.importPreset(d)
+      const raw = JSON.parse(ev.target.result)
+      const result = actions.importPreset(raw)
+      if (!result.ok) throw new Error(result.error)
+      // 导入会覆盖内容与名称（含 name 字段）
+      applyToDraft(result.data)
     } catch (err) {
-      alert('导入失败：' + err.message)
+      alert('导入失败：' + (err.message || '未知错误'))
     }
   }
   reader.readAsText(file)
   e.target.value = ''
 }
 
-function openSave() {
-  saveName.value = importedName.value || editName.value
-  showSaveModal.value = true
+function doSave() {
+  const n = draft.name.trim()
+  if (!n) {
+    alert('请先填写方案名称')
+    return
+  }
+  actions.savePreset(n, draftPayload(), editKey.value || undefined)
+  if (!editKey.value) presets.clearDraft()
 }
 
-function doSave() {
-  const n = saveName.value.trim()
-  if (!n) return
-  actions.savePreset(n, editKey.value || undefined)
-  showSaveModal.value = false
-  saveName.value = ''
+function openExport() {
+  exportName.value = draft.name.trim()
+  showExportModal.value = true
+}
+
+function confirmExport() {
+  const n = exportName.value.trim()
+  if (!n) {
+    alert('请填写导出名称')
+    return
+  }
+  draft.name = n
+  showExportModal.value = false
+  actions.exportPreset(n, draftPayload())
+}
+
+function startNow() {
+  if (!draft.exercises.length) {
+    alert('请先添加动作')
+    return
+  }
+  const ok = actions.startConfig(draftPayload())
+  if (ok && !editKey.value) {
+    // keep draft for return
+  }
 }
 </script>
 
 <template>
   <div class="edit-page">
-    <button class="back-link" @click="router.push(editKey ? '/preset/' + editKey : '/')">
+    <button
+      type="button"
+      class="back-link"
+      @click="router.push(editKey ? '/preset/' + editKey : '/')"
+    >
       <Icon icon="mdi:arrow-left" />预设方案
     </button>
 
-    <div class="section-head">
-      <h2>
-        <Icon :icon="editKey ? 'mdi:pencil' : 'mdi:plus'" />
-        {{ editKey ? '编辑方案' : '新建方案' }}
-      </h2>
-      <span style="flex:1"></span>
-      <button
-        class="btn btn-ghost btn-sm"
-        @click="actions.exportPreset(editName || importedName || saveName.trim())"
-      >
-        <Icon icon="mdi:upload" />导出
-      </button>
-      <button class="btn btn-ghost btn-sm" @click="importInput?.click()">
-        <Icon icon="mdi:download" />导入
-      </button>
-      <input
-        ref="importInput"
-        type="file"
-        accept=".json"
-        style="display:none"
-        @change="handleImport"
-      />
+    <div class="card edit-identity">
+      <div class="edit-identity-main">
+        <div class="detail-icon edit-identity-icon" aria-hidden="true">
+          <Icon :icon="draft.icon || 'mdi:tune-variant'" />
+        </div>
+        <input
+          id="preset-name-input"
+          v-model="draft.name"
+          type="text"
+          class="edit-title-input"
+          :placeholder="editKey ? '方案名称' : '新方案名称'"
+          aria-label="方案名称"
+          @focus="$event.target.select()"
+        />
+        <div class="edit-identity-actions">
+          <button type="button" class="btn btn-ghost edit-id-btn" @click="openExport">
+            <Icon icon="mdi:upload" />导出
+          </button>
+          <button type="button" class="btn btn-ghost edit-id-btn" @click="importInput?.click()">
+            <Icon icon="mdi:download" />导入
+          </button>
+          <input
+            ref="importInput"
+            type="file"
+            accept=".json,application/json"
+            class="hidden-input"
+            @change="handleImport"
+          />
+        </div>
+      </div>
+      <div class="edit-identity-icons">
+        <div class="icon-picker" role="listbox" aria-label="选择图标">
+          <button
+            v-for="ic in PRESET_ICONS"
+            :key="ic"
+            type="button"
+            class="icon-pick"
+            :class="{ on: draft.icon === ic }"
+            :aria-selected="draft.icon === ic"
+            :title="ic"
+            @click="draft.icon = ic"
+          >
+            <Icon :icon="ic" />
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 热身 -->
     <div class="card">
       <div class="card-title"><Icon icon="mdi:fire" />热身</div>
-      <div class="toggle-row" @click="workout.warmupEnabled.value = !workout.warmupEnabled.value">
-        <div class="toggle-track" :class="{ on: workout.warmupEnabled.value }"></div>
-        <span style="font-size:.82rem;opacity:.6">
-          训练前热身{{ workout.warmupEnabled.value ? ' · ' + workout.warmupSeconds.value + ' 秒' : '' }}
-        </span>
-      </div>
-      <div
-        v-if="workout.warmupEnabled.value"
-        style="display:flex;align-items:center;gap:10px;margin-top:10px"
+      <button
+        type="button"
+        class="toggle-row"
+        role="switch"
+        :aria-checked="draft.warmupEnabled"
+        @click="draft.warmupEnabled = !draft.warmupEnabled"
       >
-        <span style="font-size:.82rem;opacity:.6">热身时长</span>
+        <span class="toggle-track" :class="{ on: draft.warmupEnabled }" aria-hidden="true"></span>
+        <span class="toggle-label">
+          训练前热身{{ draft.warmupEnabled ? ' · ' + draft.warmupSeconds + ' 秒' : '' }}
+        </span>
+      </button>
+      <div v-if="draft.warmupEnabled" class="inline-field">
+        <span class="field-label">热身时长</span>
         <NumInput
-          :model-value="workout.warmupSeconds.value"
+          :model-value="draft.warmupSeconds"
           :min="10"
           :max="600"
           unit="秒"
-          @update:model-value="workout.warmupSeconds.value = $event"
+          @update:model-value="draft.warmupSeconds = $event"
         />
       </div>
     </div>
@@ -124,19 +276,28 @@ function doSave() {
     <div class="card">
       <div class="card-title">
         <Icon icon="mdi:dumbbell" />训练动作
-        <span style="flex:1"></span>
-        <button class="btn btn-ghost btn-sm" @click="workout.addExercise()">
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost btn-sm" @click="addExercise">
           <Icon icon="mdi:plus" />添加
         </button>
       </div>
-      <div
-        v-if="workout.exercises.value.length === 0"
-        style="text-align:center;padding:24px;opacity:.4;font-size:.85rem"
-      >
+      <div v-if="draft.exercises.length === 0" class="empty-hint">
         还没有动作，点击「添加」开始编排
       </div>
-      <div v-for="(ex, i) in workout.exercises.value" :key="i" class="ex-row">
-        <Icon icon="mdi:drag" style="opacity:.2;font-size:1rem;flex-shrink:0" />
+      <div
+        v-for="(ex, i) in draft.exercises"
+        :key="i"
+        class="ex-row"
+        :class="{ dragging: dragFrom === i }"
+        draggable="true"
+        @dragstart="onDragStart(i, $event)"
+        @dragover="onDragOver"
+        @drop="onDrop(i, $event)"
+        @dragend="onDragEnd"
+      >
+        <span class="drag-handle" title="拖动排序" aria-hidden="true">
+          <Icon icon="mdi:drag" />
+        </span>
         <input
           type="text"
           class="name-input"
@@ -161,7 +322,12 @@ function doSave() {
           color="o"
           @update:model-value="ex.rest = $event"
         />
-        <button class="btn-icon" style="color:var(--danger)" @click="workout.removeExercise(i)">
+        <button
+          type="button"
+          class="btn-icon btn-danger-icon"
+          aria-label="删除动作"
+          @click="removeExercise(i)"
+        >
           <Icon icon="mdi:trash-can-outline" />
         </button>
       </div>
@@ -169,52 +335,65 @@ function doSave() {
 
     <div class="card">
       <div class="card-title"><Icon icon="mdi:repeat" />循环设置（随预设一起保存）</div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-        <span style="font-size:.82rem;opacity:.6">总轮数</span>
+      <div class="inline-field wrap">
+        <span class="field-label">总轮数</span>
         <NumInput
-          :model-value="workout.rounds.value"
+          :model-value="draft.rounds"
           :min="1"
           :max="99"
           :step="1"
           unit=""
-          @update:model-value="workout.rounds.value = $event"
+          @update:model-value="draft.rounds = $event"
         />
-        <span style="font-size:.82rem;opacity:.6;margin-left:8px">轮间休息</span>
+        <span class="field-label field-label-gap">轮间休息</span>
         <NumInput
-          :model-value="workout.restBetweenRounds.value"
+          :model-value="draft.restBetweenRounds"
           :min="0"
           :max="600"
           unit="秒"
-          @update:model-value="workout.restBetweenRounds.value = $event"
+          @update:model-value="draft.restBetweenRounds = $event"
         />
       </div>
     </div>
 
     <div class="editor-actions">
-      <button class="btn btn-primary" @click="openSave">
+      <button type="button" class="btn btn-primary" @click="startNow">
+        <Icon icon="mdi:play" />开始训练
+      </button>
+      <button type="button" class="btn btn-ghost" @click="doSave">
         <Icon icon="mdi:content-save" />{{ editKey ? '保存修改' : '保存为预设' }}
       </button>
     </div>
 
-    <!-- 保存为预设 -->
-    <div v-if="showSaveModal" class="modal-overlay" @click.self="showSaveModal = false">
+    <div
+      v-if="showExportModal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="export-title"
+      @click.self="showExportModal = false"
+    >
       <div class="modal-box">
-        <div style="font-weight:700;margin-bottom:8px">
-          <Icon icon="mdi:content-save" /> {{ editKey ? '保存修改' : '保存为预设' }}
+        <div id="export-title" class="modal-title">
+          <Icon icon="mdi:upload" /> 导出预设
         </div>
-        <div v-if="editKey" style="font-size:.78rem;opacity:.55;margin-bottom:12px">
-          将更新「{{ editName }}」这个预设
-        </div>
+        <p class="modal-desc">
+          将下载为 JSON 文件，文件名：
+          <b class="export-filename">{{ (exportName.trim() || '预设') + '.json' }}</b>
+        </p>
+        <label class="field-label" for="export-name-input">导出名称</label>
         <input
-          v-model="saveName"
+          id="export-name-input"
+          v-model="exportName"
           type="text"
-          placeholder="输入预设名称"
-          style="width:100%;margin-bottom:14px"
-          @keyup.enter="doSave"
+          class="modal-input"
+          placeholder="方案名称"
+          @keyup.enter="confirmExport"
+          @focus="$event.target.select()"
         />
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn btn-ghost btn-sm" @click="showSaveModal = false">取消</button>
-          <button class="btn btn-primary btn-sm" @click="doSave">保存</button>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost btn-sm" @click="showExportModal = false">取消</button>
+          <button type="button" class="btn btn-primary btn-sm" @click="confirmExport">确认导出</button>
         </div>
       </div>
     </div>

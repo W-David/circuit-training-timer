@@ -1,22 +1,14 @@
-import { ref, computed, watch } from 'vue'
-import { load, save } from './useStorage.js'
-import defaults from '../data/defaults.json'
+import { ref, computed } from 'vue'
+import { buildSchedule as buildFlat } from '../utils/schedule.js'
+import { normalizePreset } from '../utils/presetFormat.js'
 import { useVoicePrompts } from './useVoicePrompts.js'
 
-const CONFIG_KEY = 'ct3-config'
-
-function loadConfig() {
-  const d = load(CONFIG_KEY)
-  return d && d.ex ? d : null
-}
-
 export function useWorkout() {
-  const cfg = loadConfig()
-  const exercises = ref(cfg?.ex || JSON.parse(JSON.stringify(defaults.exercises)))
-  const rounds = ref(cfg?.r ?? defaults.rounds)
-  const restBetweenRounds = ref(cfg?.rb ?? defaults.restBetweenRounds)
-  const warmupEnabled = ref(cfg?.we || defaults.warmupEnabled)
-  const warmupSeconds = ref(cfg?.ws ?? defaults.warmupSeconds)
+  const exercises = ref([])
+  const rounds = ref(3)
+  const restBetweenRounds = ref(30)
+  const warmupEnabled = ref(false)
+  const warmupSeconds = ref(180)
 
   const view = ref('editor')
   const flat = ref([])
@@ -27,53 +19,32 @@ export function useWorkout() {
 
   // rAF 驱动的真实时间计时状态
   let rafId = null
-  let startAt = 0        // 开始训练时的 performance.now()
-  let pausedMs = 0       // 累计暂停毫秒（暂停时间不计入训练进度）
-  let pauseStartAt = 0   // 本次暂停开始的时间
-  let skipAdjustMs = 0   // 跳过动作产生的进度偏移
-  let lastTs = null      // 上一帧时间戳，用于识别后台恢复
+  let startAt = 0
+  let pausedMs = 0
+  let pauseStartAt = 0
+  let skipAdjustMs = 0
+  let lastTs = null
   let finished = false
-  let audioRef = null    // 当前训练使用的音频对象（rAF 回调内引用）
-  let voice = null       // 当前训练的语音提示模块
+  let audioRef = null
+  let voice = null
 
-  function persist() {
-    save(CONFIG_KEY, {
-      ex: exercises.value,
-      r: rounds.value,
-      rb: restBetweenRounds.value,
-      we: warmupEnabled.value,
-      ws: warmupSeconds.value,
-    })
-  }
-
-  function addExercise() {
-    exercises.value.push({ name: '', ...defaults.newExercise })
-    persist()
-  }
-
-  function removeExercise(i) {
-    exercises.value.splice(i, 1)
-    persist()
+  function applyConfig(cfg) {
+    const n = normalizePreset(cfg)
+    exercises.value = n.exercises.map((e) => ({ ...e }))
+    rounds.value = n.rounds
+    restBetweenRounds.value = n.restBetweenRounds
+    warmupEnabled.value = n.warmupEnabled
+    warmupSeconds.value = n.warmupSeconds
   }
 
   function buildSchedule() {
-    const f = []
-    if (warmupEnabled.value) {
-      f.push({ name: '热身', seconds: warmupSeconds.value, type: 'warmup', exIndex: -1, round: -1 })
-    }
-    for (let r = 0; r < rounds.value; r++) {
-      for (let i = 0; i < exercises.value.length; i++) {
-        const e = exercises.value[i]
-        f.push({ name: e.name, seconds: e.work, type: 'work', exIndex: i, round: r })
-        if (e.rest > 0) {
-          f.push({ name: '休息', seconds: e.rest, type: 'rest', exIndex: i, round: r })
-        }
-      }
-      if (r < rounds.value - 1 && restBetweenRounds.value > 0) {
-        f.push({ name: '轮间休息', seconds: restBetweenRounds.value, type: 'roundRest', exIndex: -1, round: r })
-      }
-    }
-    flat.value = f
+    flat.value = buildFlat({
+      exercises: exercises.value,
+      rounds: rounds.value,
+      restBetweenRounds: restBetweenRounds.value,
+      warmupEnabled: warmupEnabled.value,
+      warmupSeconds: warmupSeconds.value,
+    })
   }
 
   const currentStep = computed(() => flat.value[cur.value] || {})
@@ -125,7 +96,6 @@ export function useWorkout() {
         const si = flat.value.findIndex(
           (s) => s.round === r && s.exIndex === i && s.type === 'work',
         )
-        // 未完成：灰色；已完成：绿色；正在完成：放大 + 发光
         let cls = 'work'
         if (si >= 0 && si < cur.value) {
           cls = 'past'
@@ -139,7 +109,8 @@ export function useWorkout() {
     return dots
   })
 
-  function startWorkout(audio) {
+  function startWorkout(audio, cfg) {
+    if (cfg) applyConfig(cfg)
     if (!exercises.value.length) return false
     buildSchedule()
     if (!flat.value.length) return false
@@ -168,7 +139,6 @@ export function useWorkout() {
     finished = true
     cancelAnimationFrame(rafId)
     rafId = null
-    // 总用时扣除暂停时间，与实际训练时长一致
     totalElapsed.value = Math.floor((performance.now() - startAt - pausedMs) / 1000)
     voice?.onFinish()
     view.value = 'summary'
@@ -177,16 +147,13 @@ export function useWorkout() {
   function frame(ts) {
     if (finished || paused.value || view.value !== 'timer') return
 
-    // 帧间隔超过 500ms 说明期间标签页在后台/锁屏，恢复后只补进度、不播声音
     const catchUp = lastTs !== null && ts - lastTs > 500
     lastTs = ts
 
-    // 用真实时间戳计算已进行的训练进度（暂停时间不计入）
     const elapsedMs = ts - startAt - pausedMs + skipAdjustMs
     const oldCur = cur.value
     const oldRem = remaining.value
 
-    // 按时间线累加各步骤时长，找到当前步骤与剩余秒数
     let acc = 0
     let idx = -1
     for (let i = 0; i < flat.value.length; i++) {
@@ -207,7 +174,6 @@ export function useWorkout() {
     }
 
     if (idx !== oldCur) {
-      // 进入新步骤
       cur.value = idx
       if (!catchUp) {
         audioRef?.beep?.(660, 0.5, 0.4)
@@ -215,7 +181,6 @@ export function useWorkout() {
         voice?.onStepChange(s)
       }
     } else if (!catchUp && remaining.value < oldRem) {
-      // 同一步骤内跨过关键时间点：提前 5 秒语音播报，3/2/1 秒蜂鸣
       const s = flat.value[idx]
       const next = flat.value[idx + 1] || null
       if (oldRem > 5 && remaining.value <= 5) {
@@ -241,6 +206,9 @@ export function useWorkout() {
     } else {
       pausedMs += performance.now() - pauseStartAt
       lastTs = null
+      // 继续时重播当前步骤提示，避免暂停后丢失上下文
+      const s = flat.value[cur.value]
+      if (s) voice?.onStepChange(s)
       rafId = requestAnimationFrame(frame)
     }
   }
@@ -261,32 +229,22 @@ export function useWorkout() {
     view.value = 'editor'
   }
 
-  function reset() {
+  function goHome() {
     cancelAnimationFrame(rafId)
     rafId = null
-    finished = false
+    finished = true
+    if ('speechSynthesis' in window) speechSynthesis.cancel()
     view.value = 'editor'
   }
 
   function loadPreset(preset) {
-    exercises.value = preset.exercises.map((e) => ({ ...e }))
-    rounds.value = preset.rounds ?? 3
-    restBetweenRounds.value = preset.restBetweenRounds ?? 30
-    warmupEnabled.value = preset.warmupEnabled || false
-    warmupSeconds.value = preset.warmupSeconds || 180
-    persist()
+    applyConfig(preset)
   }
 
   function fmt(s) {
     const m = Math.floor(s / 60)
-    return String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0')
+    return String(m).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0')
   }
-
-  watch(
-    [exercises, rounds, restBetweenRounds, warmupEnabled, warmupSeconds],
-    persist,
-    { deep: true },
-  )
 
   return {
     exercises,
@@ -308,16 +266,14 @@ export function useWorkout() {
     nextName,
     nextSec,
     progressDots,
-    addExercise,
-    removeExercise,
     buildSchedule,
     startWorkout,
     togglePause,
     skip,
     stop,
-    reset,
+    goHome,
     loadPreset,
-    persist,
+    applyConfig,
     fmt,
   }
 }

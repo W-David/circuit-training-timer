@@ -5,12 +5,15 @@ import { useRouter } from 'vue-router'
 import { useWorkout } from './composables/useWorkout.js'
 import { useAudio } from './composables/useAudio.js'
 import { usePresets } from './composables/usePresets.js'
+import { useSettings } from './composables/useSettings.js'
+import { parseImportPayload, cloneConfig } from './utils/presetFormat.js'
 import TimerView from './components/TimerView.vue'
 import SummaryView from './components/SummaryView.vue'
 
 const router = useRouter()
 const workout = useWorkout()
-const audio = useAudio()
+const { settings, toggleMute } = useSettings()
+const audio = useAudio(settings)
 const presets = usePresets()
 
 const isFullscreen = ref(false)
@@ -19,6 +22,7 @@ let toastTimer = null
 
 provide('workout', workout)
 provide('presets', presets)
+provide('settings', { settings, toggleMute })
 
 function toast(msg) {
   toastText.value = msg
@@ -26,95 +30,87 @@ function toast(msg) {
   toastTimer = setTimeout(() => (toastText.value = ''), 2000)
 }
 
+function resolvePreset(key) {
+  return presets.loadBuiltin(key) || presets.customPresets[key] || null
+}
+
 const actions = {
   startPreset(key) {
-    const p = presets.loadBuiltin(key) || presets.customPresets[key] || null
+    const p = resolvePreset(key)
     if (!p) return
-    workout.loadPreset(p)
     audio.prime()
-    const ok = workout.startWorkout(audio)
+    const ok = workout.startWorkout(audio, p)
     if (!ok) toast('训练内容为空')
   },
-  savePreset(name, key) {
-    const k = presets.savePreset(
-      name,
-      {
-        exercises: JSON.parse(JSON.stringify(workout.exercises.value)),
-        rounds: workout.rounds.value,
-        restBetweenRounds: workout.restBetweenRounds.value,
-        warmupEnabled: workout.warmupEnabled.value,
-        warmupSeconds: workout.warmupSeconds.value,
-      },
-      key,
-    )
+  startConfig(cfg) {
+    audio.prime()
+    const ok = workout.startWorkout(audio, cfg)
+    if (!ok) toast('训练内容为空')
+    return ok
+  },
+  savePreset(name, config, key) {
+    const k = presets.savePreset(name, config, key)
     toast(key ? '已更新「' + name + '」' : '已保存「' + name + '」')
     router.push('/preset/' + k)
+    return k
   },
   deletePreset(key) {
     const name = presets.customPresets[key]?.name || '未命名'
     presets.deletePreset(key)
     toast('已删除「' + name + '」')
   },
-  importPreset(data) {
-    workout.exercises.value = data.exercises.map((ex) => ({
-      name: String(ex.name || '未命名'),
-      work: Math.max(1, Math.min(600, +ex.work || 1)),
-      rest: Math.max(0, Math.min(600, +ex.rest || 0)),
-    }))
-    workout.rounds.value = Math.max(1, Math.min(99, +data.rounds || 3))
-    workout.restBetweenRounds.value = Math.max(0, Math.min(600, +data.restBetweenRounds || 0))
-    workout.warmupEnabled.value = !!data.warmupEnabled
-    workout.warmupSeconds.value = Math.max(10, Math.min(600, +data.warmupSeconds || 180))
-    workout.persist()
-    toast('已导入 ' + workout.exercises.value.length + ' 个动作')
+  /** 立即复制为新的自定义预设（不进编辑页） */
+  forkPreset(key, name) {
+    const p = resolvePreset(key)
+    if (!p) return null
+    const cfg = cloneConfig(p)
+    const n = String(name || '').trim() || (p.name || '方案') + ' 副本'
+    cfg.name = n
+    const k = presets.savePreset(n, cfg)
+    toast('已另存为「' + n + '」')
+    router.push('/preset/' + k)
+    return k
+  },
+  importPreset(raw) {
+    const result = parseImportPayload(raw)
+    if (!result.ok) return result
+    return { ok: true, data: result.data }
   },
   exportPreset(name = '', data = null) {
-    const cfg = data || {
-      exercises: workout.exercises.value,
-      rounds: workout.rounds.value,
-      restBetweenRounds: workout.restBetweenRounds.value,
-      warmupEnabled: workout.warmupEnabled.value,
-      warmupSeconds: workout.warmupSeconds.value,
+    if (!data) {
+      toast('没有可导出的内容')
+      return
     }
     const payload = {
       v: 1,
-      name: name || '',
-      exercises: cfg.exercises.map((e) => ({
+      name: name || data.name || '',
+      exercises: (data.exercises || []).map((e) => ({
         name: e.name,
         work: e.work,
         rest: e.rest,
       })),
-      rounds: cfg.rounds,
-      restBetweenRounds: cfg.restBetweenRounds,
-      warmupEnabled: cfg.warmupEnabled,
-      warmupSeconds: cfg.warmupSeconds,
+      rounds: data.rounds,
+      restBetweenRounds: data.restBetweenRounds,
+      warmupEnabled: data.warmupEnabled,
+      warmupSeconds: data.warmupSeconds,
+      icon: data.icon || undefined,
       exportedAt: new Date().toISOString(),
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    const base = String(name || '')
+    const base = String(name || data.name || '')
       .trim()
       .replace(/[\\/:*?"<>|]/g, '-') || '预设'
-    a.download = base + '-' + Date.now() + '.json'
+    a.download = base + '.json'
     a.click()
     URL.revokeObjectURL(url)
-    toast('已导出')
+    toast('已导出「' + (payload.name || base) + '」')
   },
 }
 
 provide('actions', actions)
-
-function handleStart() {
-  if (!workout.exercises.value.length) {
-    toast('请先添加动作')
-    return
-  }
-  audio.prime()
-  const ok = workout.startWorkout(audio)
-  if (!ok) toast('训练内容为空')
-}
 
 function handlePause() {
   workout.togglePause()
@@ -128,15 +124,24 @@ function handleSkip() {
 function handleStop() {
   workout.stop()
   audio.cancel()
-  // 全屏下结束训练：先退出全屏，否则页面会被 body.fs 隐藏成空白页
   if (document.fullscreenElement) {
     document.exitFullscreen().catch(() => {})
   }
 }
 
 function handleRestart() {
-  // 与按钮文案一致：直接重新开始一轮训练
-  handleStart()
+  audio.prime()
+  const ok = workout.startWorkout(audio)
+  if (!ok) toast('训练内容为空')
+}
+
+function handleHome() {
+  workout.goHome()
+  audio.cancel()
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {})
+  }
+  router.push('/')
 }
 
 // --- Fullscreen ---
@@ -183,7 +188,7 @@ function onKey(e) {
   }
 }
 
-// --- Wake Lock：计时页面保持屏幕常亮 ---
+// --- Wake Lock ---
 let wakeLock = null
 
 async function acquireWakeLock() {
@@ -227,11 +232,32 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- Toast -->
   <div class="toast" :class="{ on: !!toastText }">{{ toastText }}</div>
 
-  <!-- FS button -->
-  <button class="fs-btn" @click="toggleFullscreen" :title="isFullscreen ? '退出全屏' : '全屏'">
+  <div class="top-actions" v-show="workout.view.value === 'timer' || workout.view.value === 'summary'">
+    <button
+      class="icon-btn"
+      :title="settings.muted ? '开启声音' : '静音'"
+      :aria-pressed="settings.muted"
+      @click="toggleMute"
+    >
+      <Icon :icon="settings.muted ? 'mdi:volume-off' : 'mdi:volume-high'" />
+    </button>
+    <button
+      class="icon-btn"
+      :title="isFullscreen ? '退出全屏' : '全屏'"
+      @click="toggleFullscreen"
+    >
+      <Icon :icon="isFullscreen ? 'mdi:fullscreen-exit' : 'mdi:fullscreen'" />
+    </button>
+  </div>
+
+  <button
+    v-show="workout.view.value === 'editor'"
+    class="fs-btn"
+    @click="toggleFullscreen"
+    :title="isFullscreen ? '退出全屏' : '全屏'"
+  >
     <Icon :icon="isFullscreen ? 'mdi:fullscreen-exit' : 'mdi:fullscreen'" />
   </button>
 
@@ -255,7 +281,6 @@ onUnmounted(() => {
       @pause="handlePause"
       @skip="handleSkip"
       @stop="handleStop"
-      @toggle-fs="toggleFullscreen"
     />
     <SummaryView
       v-else
@@ -265,6 +290,7 @@ onUnmounted(() => {
       :exercise-count="workout.exercises.value.length"
       :fmt="workout.fmt"
       @restart="handleRestart"
+      @home="handleHome"
     />
   </Transition>
 </template>

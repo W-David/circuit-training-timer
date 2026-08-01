@@ -24,7 +24,7 @@ function setValue(v) {
 <template>
   <div class="num-input">
     <span v-if="color" class="dot" :class="color"></span>
-    <button @click="adjust(-step)">−</button>
+    <button type="button" aria-label="减少" @click="adjust(-step)">−</button>
     <input
       class="val"
       type="number"
@@ -33,7 +33,7 @@ function setValue(v) {
       :max="max"
       @input="setValue($event.target.value)"
     />
-    <button @click="adjust(step)">+</button>
+    <button type="button" aria-label="增加" @click="adjust(step)">+</button>
     <span v-if="unit" class="unit">{{ unit }}</span>
   </div>
 </template>

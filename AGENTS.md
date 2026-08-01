@@ -1,0 +1,65 @@
+# AGENTS.md
+
+Vue 3 + Vite SPA (circuit training timer). UI copy is Chinese (`zh-CN`). Package manager: **pnpm** (`packageManager`: pnpm@11.13.0).
+
+## Commands
+
+```bash
+pnpm install
+pnpm dev       # Vite dev server
+pnpm build     # → dist/
+pnpm preview
+pnpm test      # vitest (pure utils / voice prompts)
+```
+
+No lint/typecheck scripts. Do not add CI unless asked.
+
+## Layout
+
+| Path | Role |
+|------|------|
+| `src/main.js` | App bootstrap |
+| `src/App.vue` | Shell: composables, `provide`, timer/summary overlay, fullscreen/wake-lock/keyboard/mute |
+| `src/router.js` | Editor routes (`createWebHistory`) |
+| `src/composables/` | Workout engine, presets, audio, settings, storage |
+| `src/utils/schedule.js` | Pure `buildSchedule` |
+| `src/utils/presetFormat.js` | Normalize / import parse / duration helpers |
+| `src/components/*View.vue` | Routed or overlay screens |
+| `src/data/presets.json` | Builtin presets |
+| `src/data/defaults.json` | New-draft defaults + `newExercise` |
+| `public/` | PWA manifest, `sw.js`, icon |
+| `src/styles/main.css` | Global styles (no CSS framework) |
+
+## Architecture (easy to break)
+
+- **View modes** on `workout.view`: `'editor' | 'timer' | 'summary'`. Router renders only when `view === 'editor'`. Timer/summary are siblings in `App.vue`, not routes.
+- **Edit isolation**: `PresetEditView` keeps a **local `draft`**. It must not call `workout.loadPreset` on open. Only `actions.startConfig(draft)` / `savePreset` commit. New-draft autosave → `ct3-new-draft` (not the old `ct3-config`).
+- **另存为 ≠ 编辑**: `forkPreset` immediately copies into custom presets (name modal on detail). Edit only opens `/edit/:key` for existing custom presets.
+- Cross-view state via `provide`/`inject`: `'workout'`, `'presets'`, `'actions'`, `'settings'`.
+- **Timer** (`useWorkout.js`): `requestAnimationFrame` + `performance.now()`. Pause excluded; skip adjusts timeline offset. Tab gap `>500ms` → catch-up **without** beeps/voice. Unpause re-prompts current step.
+- Call `audio.prime()` in the user gesture that starts a workout (iOS AudioContext). Mute flags live in `useSettings` → `useAudio`.
+- Stopping/going home while fullscreen must `exitFullscreen()` — `body.fs` leaves a blank page otherwise.
+- `vite-plugin-vue-devtools` only when `mode === 'development'`.
+
+## Persistence
+
+| Key | Contents |
+|-----|----------|
+| `ct3-presets` | Custom presets `{ [id]: { name, icon, exercises, rounds, ... } }` |
+| `ct3-new-draft` | Unsaved **new** editor draft only |
+| `ct3-settings` | `{ muted }` |
+
+Builtin presets: static JSON (`key`). Custom keys: `name-timestamp`. Export: `{ v: 1, name, exercises, rounds, restBetweenRounds, warmupEnabled, warmupSeconds, icon?, exportedAt }`. Parse via `parseImportPayload`.
+
+## Schedule model
+
+`buildSchedule()`: optional warmup → per round (work + optional rest) → optional `roundRest` between rounds. Types: `warmup | work | rest | roundRest`.
+
+Voice copy: `useVoicePrompts.js` (near-end at 5s; ~60ms delay after `speechSynthesis.cancel` on Chrome).
+
+## Conventions
+
+- Icons: `@iconify/vue` with `mdi:*` (picker list in `PRESET_ICONS`).
+- User-facing strings in Chinese.
+- Prefer extending composables/utils over new global stores.
+- Pure logic → `src/utils/*` + vitest; keep components thin.

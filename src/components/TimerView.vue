@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import FlipClock from './FlipClock.vue'
 
-const props = defineProps({
+defineProps({
   remaining: Number,
   paused: Boolean,
   displayName: String,
@@ -16,7 +16,7 @@ const props = defineProps({
   progressDots: Array,
 })
 
-const emit = defineEmits(['pause', 'skip', 'stop', 'toggle-fs'])
+const emit = defineEmits(['pause', 'skip', 'stop'])
 
 function press(action, e) {
   // 点击后立刻失焦，避免按钮保持焦点时按空格触发二次点击
@@ -32,7 +32,7 @@ function press(action, e) {
 
     <div
       class="timer-countdown"
-      :style="{ color: remaining <= 3 && !paused ? 'var(--danger)' : 'var(--text)' }"
+      :class="{ urgent: remaining <= 3 && !paused }"
     >
       <FlipClock :seconds="remaining" />
     </div>
@@ -56,14 +56,14 @@ function press(action, e) {
     </div>
 
     <div class="ctrl-row">
-      <button class="btn btn-primary btn-lg" @click="press('pause', $event)">
+      <button type="button" class="btn btn-primary btn-lg" @click="press('pause', $event)">
         <Icon :icon="paused ? 'mdi:play' : 'mdi:pause'" />
         {{ paused ? '继续' : '暂停' }}
       </button>
-      <button class="btn btn-ghost" @click="press('skip', $event)">
+      <button type="button" class="btn btn-ghost" @click="press('skip', $event)">
         <Icon icon="mdi:skip-next" />跳过
       </button>
-      <button class="btn btn-ghost" @click="press('stop', $event)">
+      <button type="button" class="btn btn-ghost" @click="press('stop', $event)">
         <Icon icon="mdi:stop" />结束
       </button>
     </div>

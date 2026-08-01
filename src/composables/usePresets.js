@@ -1,8 +1,10 @@
 import { reactive, computed } from 'vue'
-import { load, save } from './useStorage.js'
+import { load, save, remove } from './useStorage.js'
 import BUILTIN from '../data/presets.json'
+import { normalizePreset } from '../utils/presetFormat.js'
 
 const PRESETS_KEY = 'ct3-presets'
+const DRAFT_KEY = 'ct3-new-draft'
 
 function loadPresets() {
   const d = load(PRESETS_KEY)
@@ -20,9 +22,17 @@ export function usePresets() {
   const customCount = computed(() => Object.keys(state).length)
 
   function savePreset(name, config, key) {
-    // 用「预设名-时间戳」作为保存标识，避免同名预设互相覆盖
+    const n = normalizePreset({ ...config, name })
     const k = key || name + '-' + Date.now()
-    state[k] = { name, ...config }
+    state[k] = {
+      name: n.name || name,
+      icon: n.icon,
+      exercises: n.exercises,
+      rounds: n.rounds,
+      restBetweenRounds: n.restBetweenRounds,
+      warmupEnabled: n.warmupEnabled,
+      warmupSeconds: n.warmupSeconds,
+    }
     savePresets(state)
     return k
   }
@@ -36,6 +46,18 @@ export function usePresets() {
     return BUILTIN.find((p) => p.key === key) || null
   }
 
+  function loadDraft() {
+    return load(DRAFT_KEY)
+  }
+
+  function saveDraft(cfg) {
+    save(DRAFT_KEY, cfg)
+  }
+
+  function clearDraft() {
+    remove(DRAFT_KEY)
+  }
+
   return {
     builtinPresets: BUILTIN,
     customPresets,
@@ -43,6 +65,9 @@ export function usePresets() {
     savePreset,
     deletePreset,
     loadBuiltin,
+    loadDraft,
+    saveDraft,
+    clearDraft,
     updatePresets: savePresets,
   }
 }
