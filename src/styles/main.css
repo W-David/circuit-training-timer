@@ -93,27 +93,6 @@ body.timer-active {
   background: #080b12;
 }
 
-body.fs.timer-active #app {
-  max-width: 100%;
-  padding: 50px;
-}
-
-body.fs .timer-countdown {
-  font-size: min(36vw, 24rem) !important;
-}
-
-body.fs .countdown-stage::before {
-  inset: -32px -52px;
-}
-
-body.fs .countdown-halo {
-  inset: -52px -76px;
-}
-
-body.fs .timer-ex-name {
-  font-size: min(8vw, 5rem) !important;
-}
-
 #app {
   width: 100%;
   max-width: 680px;
@@ -1056,81 +1035,124 @@ input[type='number']::-webkit-inner-spin-button {
 .timer-screen {
   text-align: center;
   padding: 16px 0;
+  min-height: calc(100dvh - 88px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.timer-phase {
-  display: inline-block;
-  padding: 3px 14px;
+/* 状态岛：统一整合「状态 + 动作名」 */
+.timer-status {
+  --status-accent: var(--accent2);
+  --status-soft: rgba(167, 139, 250, 0.14);
+  --status-ring: rgba(167, 139, 250, 0.35);
+  --status-glow: rgba(167, 139, 250, 0.28);
+
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 420px);
+  padding: 10px 18px 10px 10px;
+  margin-bottom: 18px;
   border-radius: 999px;
-  font-size: 0.76rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    rgba(12, 15, 24, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 28px -14px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(0, 0, 0, 0.25) inset,
+    0 0 24px -8px var(--status-glow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.timer-status.w {
+  --status-accent: var(--work);
+  --status-soft: rgba(52, 224, 178, 0.14);
+  --status-ring: rgba(52, 224, 178, 0.4);
+  --status-glow: rgba(52, 224, 178, 0.28);
+}
+
+.timer-status.r {
+  --status-accent: var(--rest);
+  --status-soft: rgba(245, 166, 35, 0.12);
+  --status-ring: rgba(245, 166, 35, 0.4);
+  --status-glow: rgba(245, 166, 35, 0.26);
+}
+
+.timer-status.u {
+  --status-accent: var(--accent2);
+  --status-soft: rgba(167, 139, 250, 0.14);
+  --status-ring: rgba(167, 139, 250, 0.4);
+  --status-glow: rgba(167, 139, 250, 0.28);
+}
+
+.status-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  color: var(--status-accent);
+  background: var(--status-soft);
+  box-shadow:
+    inset 0 0 0 1px var(--status-ring),
+    0 0 14px -4px var(--status-glow);
+}
+
+.status-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  text-align: left;
+}
+
+.status-label {
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  margin-bottom: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--status-accent);
+  line-height: 1.2;
+  opacity: 0.95;
 }
 
-.timer-phase.w {
-  background: rgba(52, 224, 178, 0.1);
-  color: var(--work);
-  box-shadow:
-    inset 0 0 0 1px rgba(52, 224, 178, 0.25),
-    0 0 18px -4px rgba(52, 224, 178, 0.45);
-}
-
-.timer-phase.r {
-  background: rgba(245, 166, 35, 0.1);
-  color: var(--rest);
-  box-shadow:
-    inset 0 0 0 1px rgba(245, 166, 35, 0.25),
-    0 0 18px -4px rgba(245, 166, 35, 0.45);
-}
-
-.timer-phase.u {
-  background: rgba(167, 139, 250, 0.12);
-  color: var(--accent2);
-  box-shadow:
-    inset 0 0 0 1px rgba(167, 139, 250, 0.25),
-    0 0 18px -4px rgba(167, 139, 250, 0.45);
-}
-
-.timer-ex-name {
-  font-size: 2rem;
+.status-title {
+  font-size: 1.12rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* 倒计时签名区：相位色进度环 + 数字渐变 */
-.countdown-stage {
-  position: relative;
-  display: inline-block;
-  margin: 10px 0;
+/* 无动作名时（休息/热身/轮间）：状态词做主标题 */
+.timer-status.solo .status-label {
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 800;
+  color: var(--text);
 }
 
-.countdown-stage::before {
-  content: '';
-  position: absolute;
-  inset: -20px -34px;
-  border-radius: 50%;
-  background: conic-gradient(var(--ring, var(--accent2)) var(--pct, 0%), rgba(255, 255, 255, 0.055) 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
-  opacity: 0.6;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
-
-.countdown-halo {
-  position: absolute;
-  inset: -36px -52px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, var(--ring-glow, rgba(124, 111, 247, 0.18)), transparent 70%);
-  pointer-events: none;
-  transition: background 0.6s ease;
+.timer-status.solo .status-body {
+  justify-content: center;
 }
 
 .timer-countdown {
   position: relative;
-  font-size: min(26vw, 12rem);
+  font-size: min(22vw, 9rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
@@ -1160,16 +1182,10 @@ input[type='number']::-webkit-inner-spin-button {
   text-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
 }
 
-/* 冒号着色（不再继承纯白） */
+/* 冒号与数字同色（继承 .timer-countdown 的颜色） */
 .timer-countdown .digit-sep {
-  color: var(--accent2);
-  text-shadow: 0 0 14px rgba(124, 111, 247, 0.45);
+  color: inherit;
   opacity: 0.9;
-}
-
-.timer-countdown.urgent .digit-sep {
-  color: var(--danger);
-  text-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
 }
 
 /* ---- Flip Clock ---- */
@@ -1547,10 +1563,6 @@ input[type='number']::-webkit-inner-spin-button {
 
   .timer-countdown {
     font-size: 18vw !important;
-  }
-
-  .timer-ex-name {
-    font-size: 1.3rem !important;
   }
 
   .preset-grid {

@@ -25,35 +25,31 @@ function press(action, e) {
   emit(action)
 }
 
-// 动作点进度（含当前步），驱动倒计时外的相位色进度环
-const progressPct = computed(() => {
-  const dots = (props.progressDots || []).filter((d) => d !== 's')
-  if (!dots.length) return 0
-  const done = dots.filter((d) => d.cls === 'past' || d.cls === 'now').length
-  return (done / dots.length) * 100
+const phaseIcon = computed(() => {
+  if (props.currentStepType === 'warmup') return 'mdi:fire'
+  if (props.currentStepType === 'roundRest') return 'mdi:restart'
+  if (props.currentStepType === 'rest') return 'mdi:coffee-outline'
+  return 'mdi:dumbbell'
 })
 
-const ringStyle = computed(() => {
-  if (props.phaseCls === 'w') {
-    return { '--pct': progressPct.value + '%', '--ring': '#34e0b2', '--ring-glow': 'rgba(52, 224, 178, 0.16)' }
-  }
-  if (props.phaseCls === 'r') {
-    return { '--pct': progressPct.value + '%', '--ring': '#f5a623', '--ring-glow': 'rgba(245, 166, 35, 0.14)' }
-  }
-  return { '--pct': progressPct.value + '%', '--ring': '#a78bfa', '--ring-glow': 'rgba(167, 139, 250, 0.18)' }
-})
+const isWork = computed(() => props.currentStepType === 'work')
 </script>
 
 <template>
   <div class="timer-screen">
-    <div class="timer-phase" :class="phaseCls">{{ phaseLabel }}</div>
-    <div class="timer-ex-name">{{ displayName }}</div>
+    <!-- 状态岛：休息/热身 = 单一提示；运动 = 状态 + 动作名 -->
+    <div class="timer-status" :class="[phaseCls, { solo: !isWork }]">
+      <span class="status-icon" aria-hidden="true">
+        <Icon :icon="phaseIcon" />
+      </span>
+      <span class="status-body">
+        <span class="status-label">{{ phaseLabel }}</span>
+        <span v-if="isWork" class="status-title">{{ displayName }}</span>
+      </span>
+    </div>
 
-    <div class="countdown-stage" :style="ringStyle">
-      <div class="countdown-halo" aria-hidden="true"></div>
-      <div class="timer-countdown" :class="{ urgent: remaining <= 3 && !paused }">
-        <FlipClock :seconds="remaining" />
-      </div>
+    <div class="timer-countdown" :class="{ urgent: remaining <= 3 && !paused }">
+      <FlipClock :seconds="remaining" />
     </div>
 
     <div v-if="currentStepType !== 'warmup'" class="timer-round">
