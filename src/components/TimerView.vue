@@ -1,8 +1,9 @@
 <script setup>
+import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import FlipClock from './FlipClock.vue'
 
-defineProps({
+const props = defineProps({
   remaining: Number,
   paused: Boolean,
   displayName: String,
@@ -23,6 +24,24 @@ function press(action, e) {
   e.currentTarget.blur()
   emit(action)
 }
+
+// 动作点进度（含当前步），驱动倒计时外的相位色进度环
+const progressPct = computed(() => {
+  const dots = (props.progressDots || []).filter((d) => d !== 's')
+  if (!dots.length) return 0
+  const done = dots.filter((d) => d.cls === 'past' || d.cls === 'now').length
+  return (done / dots.length) * 100
+})
+
+const ringStyle = computed(() => {
+  if (props.phaseCls === 'w') {
+    return { '--pct': progressPct.value + '%', '--ring': '#34e0b2', '--ring-glow': 'rgba(52, 224, 178, 0.16)' }
+  }
+  if (props.phaseCls === 'r') {
+    return { '--pct': progressPct.value + '%', '--ring': '#f5a623', '--ring-glow': 'rgba(245, 166, 35, 0.14)' }
+  }
+  return { '--pct': progressPct.value + '%', '--ring': '#a78bfa', '--ring-glow': 'rgba(167, 139, 250, 0.18)' }
+})
 </script>
 
 <template>
@@ -30,11 +49,11 @@ function press(action, e) {
     <div class="timer-phase" :class="phaseCls">{{ phaseLabel }}</div>
     <div class="timer-ex-name">{{ displayName }}</div>
 
-    <div
-      class="timer-countdown"
-      :class="{ urgent: remaining <= 3 && !paused }"
-    >
-      <FlipClock :seconds="remaining" />
+    <div class="countdown-stage" :style="ringStyle">
+      <div class="countdown-halo" aria-hidden="true"></div>
+      <div class="timer-countdown" :class="{ urgent: remaining <= 3 && !paused }">
+        <FlipClock :seconds="remaining" />
+      </div>
     </div>
 
     <div v-if="currentStepType !== 'warmup'" class="timer-round">
@@ -66,6 +85,10 @@ function press(action, e) {
       <button type="button" class="btn btn-ghost" @click="press('stop', $event)">
         <Icon icon="mdi:stop" />结束
       </button>
+    </div>
+
+    <div class="timer-kbd-hint">
+      空格 暂停 · Ctrl+S 跳过 · Ctrl+F 全屏
     </div>
   </div>
 </template>

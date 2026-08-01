@@ -12,34 +12,36 @@ pnpm preview
 pnpm test      # vitest (pure utils / voice prompts)
 ```
 
-No lint/typecheck scripts. Do not add CI unless asked.
+No lint/typecheck scripts. CI: `.github/workflows/ci.yml` (test + build on push/PR).
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `src/main.js` | App bootstrap |
-| `src/App.vue` | Shell: composables, `provide`, timer/summary overlay, fullscreen/wake-lock/keyboard/mute |
+| `src/main.js` | App bootstrap; SW registered only when `import.meta.env.PROD` |
+| `src/App.vue` | Shell: composables, `provide` (`workout`/`presets`/`actions`/`settings`/`toast`), timer/summary overlay, fullscreen/wake-lock/keyboard/mute, export-all/import-all actions |
 | `src/router.js` | Editor routes (`createWebHistory`) |
-| `src/composables/` | Workout engine, presets, audio, settings, storage |
+| `src/composables/` | Workout engine, presets, audio, settings, storage, `useEscClose` |
 | `src/utils/schedule.js` | Pure `buildSchedule` |
 | `src/utils/presetFormat.js` | Normalize / import parse / duration helpers |
+| `src/utils/time.js` | `formatMMSS` (shared by `FlipClock` + `workout.fmt`) |
 | `src/components/*View.vue` | Routed or overlay screens |
 | `src/data/presets.json` | Builtin presets |
 | `src/data/defaults.json` | New-draft defaults + `newExercise` |
-| `public/` | PWA manifest, `sw.js`, icon |
+| `public/` | PWA manifest, `sw.js`, icons, `_redirects` (SPA fallback) |
 | `src/styles/main.css` | Global styles (no CSS framework) |
 
 ## Architecture (easy to break)
 
 - **View modes** on `workout.view`: `'editor' | 'timer' | 'summary'`. Router renders only when `view === 'editor'`. Timer/summary are siblings in `App.vue`, not routes.
-- **Edit isolation**: `PresetEditView` keeps a **local `draft`**. It must not call `workout.loadPreset` on open. Only `actions.startConfig(draft)` / `savePreset` commit. New-draft autosave → `ct3-new-draft` (not the old `ct3-config`).
+- **Edit isolation**: `PresetEditView` keeps a **local `draft`**. It must not call `workout.loadPreset` on open (`useWorkout` no longer exposes it). Only `actions.startConfig(draft)` / `savePreset` commit. New-draft autosave → `ct3-new-draft` (not the old `ct3-config`).
 - **另存为 ≠ 编辑**: `forkPreset` immediately copies into custom presets (name modal on detail). Edit only opens `/edit/:key` for existing custom presets.
 - Cross-view state via `provide`/`inject`: `'workout'`, `'presets'`, `'actions'`, `'settings'`.
 - **Timer** (`useWorkout.js`): `requestAnimationFrame` + `performance.now()`. Pause excluded; skip adjusts timeline offset. Tab gap `>500ms` → catch-up **without** beeps/voice. Unpause re-prompts current step.
-- Call `audio.prime()` in the user gesture that starts a workout (iOS AudioContext). Mute flags live in `useSettings` → `useAudio`.
+- Call `audio.prime()` in the user gesture that starts a workout (iOS AudioContext). Single mute flag in `useSettings` → `useAudio`.
 - Stopping/going home while fullscreen must `exitFullscreen()` — `body.fs` leaves a blank page otherwise.
-- `vite-plugin-vue-devtools` only when `mode === 'development'`.
+- `vite-plugin-vue-devtools` only in `mode === 'development'` (conditional spread in `vite.config.js`).
+- `sw.js`: navigation requests are network-first; static assets cache-first with background update. SW registration lives in `main.js` (production only). SPA fallback via `public/_redirects`.
 
 ## Persistence
 

@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { buildSchedule as buildFlat } from '../utils/schedule.js'
+import { formatMMSS } from '../utils/time.js'
 import { normalizePreset } from '../utils/presetFormat.js'
 import { useVoicePrompts } from './useVoicePrompts.js'
 
@@ -237,13 +238,8 @@ export function useWorkout() {
     view.value = 'editor'
   }
 
-  function loadPreset(preset) {
-    applyConfig(preset)
-  }
-
   function fmt(s) {
-    const m = Math.floor(s / 60)
-    return String(m).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0')
+    return formatMMSS(s)
   }
 
   return {
@@ -266,14 +262,11 @@ export function useWorkout() {
     nextName,
     nextSec,
     progressDots,
-    buildSchedule,
     startWorkout,
     togglePause,
     skip,
     stop,
     goHome,
-    loadPreset,
-    applyConfig,
     fmt,
   }
 }

@@ -23,6 +23,7 @@ let toastTimer = null
 provide('workout', workout)
 provide('presets', presets)
 provide('settings', { settings, toggleMute })
+provide('toast', toast)
 
 function toast(msg) {
   toastText.value = msg
@@ -107,6 +108,44 @@ const actions = {
     a.click()
     URL.revokeObjectURL(url)
     toast('已导出「' + (payload.name || base) + '」')
+  },
+  exportAllPresets() {
+    const presetsMap = presets.customPresets
+    const keys = Object.keys(presetsMap)
+    if (!keys.length) {
+      toast('暂无自定义预设')
+      return
+    }
+    const backup = {
+      v: 1,
+      type: 'ct3-backup',
+      exportedAt: new Date().toISOString(),
+      presets: JSON.parse(JSON.stringify(presetsMap)),
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const d = new Date()
+    const stamp = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('')
+    a.download = '循环计时器-备份-' + stamp + '.json'
+    a.click()
+    URL.revokeObjectURL(url)
+    toast('已保存备份（' + keys.length + ' 个预设）')
+  },
+  /** 合并导入备份，同名 key 覆盖。返回 { ok, count } 或 { ok: false, error }。 */
+  importAllPresets(raw) {
+    if (!raw || typeof raw !== 'object' || raw.type !== 'ct3-backup' || !raw.presets || typeof raw.presets !== 'object') {
+      return { ok: false, error: '不是有效的备份文件' }
+    }
+    let count = 0
+    for (const [key, p] of Object.entries(raw.presets)) {
+      if (p && typeof p === 'object') {
+        const saved = presets.savePreset(p.name || '未命名', p, key)
+        if (saved) count++
+      }
+    }
+    return count ? { ok: true, count } : { ok: false, error: '备份文件中没有有效预设' }
   },
 }
 
@@ -232,6 +271,12 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <div
+    class="bg-glow"
+    :class="workout.view.value === 'timer' ? 'phase-' + workout.phaseCls.value : ''"
+    aria-hidden="true"
+  ></div>
+
   <div class="toast" :class="{ on: !!toastText }">{{ toastText }}</div>
 
   <div class="top-actions" v-show="workout.view.value === 'timer' || workout.view.value === 'summary'">

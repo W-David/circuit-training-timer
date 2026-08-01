@@ -1,18 +1,19 @@
 <script setup>
 import { Icon } from '@iconify/vue'
-import { reactive, ref, inject, watch } from 'vue'
+import { reactive, ref, inject, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NumInput from './NumInput.vue'
+import { useEscClose } from '../composables/useEscClose.js'
 import defaults from '../data/defaults.json'
 import {
   PRESET_ICONS,
   normalizePreset,
   cloneConfig,
-  parseImportPayload,
 } from '../utils/presetFormat.js'
 
 const actions = inject('actions')
 const presets = inject('presets')
+const toast = inject('toast', () => {})
 const route = useRoute()
 const router = useRouter()
 
@@ -21,6 +22,9 @@ const editKey = ref(null)
 const dragFrom = ref(-1)
 const showExportModal = ref(false)
 const exportName = ref('')
+const exportInput = ref(null)
+
+useEscClose(showExportModal)
 
 const draft = reactive({
   name: '',
@@ -130,6 +134,13 @@ function onDragEnd() {
   dragFrom.value = -1
 }
 
+function moveExercise(i, dir) {
+  const j = i + dir
+  if (j < 0 || j >= draft.exercises.length) return
+  const [item] = draft.exercises.splice(i, 1)
+  draft.exercises.splice(j, 0, item)
+}
+
 function handleImport(e) {
   const file = e.target.files[0]
   if (!file) return
@@ -142,7 +153,7 @@ function handleImport(e) {
       // 导入会覆盖内容与名称（含 name 字段）
       applyToDraft(result.data)
     } catch (err) {
-      alert('导入失败：' + (err.message || '未知错误'))
+      toast('导入失败：' + (err.message || '未知错误'))
     }
   }
   reader.readAsText(file)
@@ -152,7 +163,7 @@ function handleImport(e) {
 function doSave() {
   const n = draft.name.trim()
   if (!n) {
-    alert('请先填写方案名称')
+    toast('请先填写方案名称')
     return
   }
   actions.savePreset(n, draftPayload(), editKey.value || undefined)
@@ -162,12 +173,16 @@ function doSave() {
 function openExport() {
   exportName.value = draft.name.trim()
   showExportModal.value = true
+  nextTick(() => {
+    exportInput.value?.focus()
+    exportInput.value?.select()
+  })
 }
 
 function confirmExport() {
   const n = exportName.value.trim()
   if (!n) {
-    alert('请填写导出名称')
+    toast('请填写导出名称')
     return
   }
   draft.name = n
@@ -177,13 +192,10 @@ function confirmExport() {
 
 function startNow() {
   if (!draft.exercises.length) {
-    alert('请先添加动作')
+    toast('请先添加动作')
     return
   }
-  const ok = actions.startConfig(draftPayload())
-  if (ok && !editKey.value) {
-    // keep draft for return
-  }
+  actions.startConfig(draftPayload())
 }
 </script>
 
@@ -298,6 +310,26 @@ function startNow() {
         <span class="drag-handle" title="拖动排序" aria-hidden="true">
           <Icon icon="mdi:drag" />
         </span>
+        <span class="ex-move">
+          <button
+            type="button"
+            class="btn-icon"
+            aria-label="上移动作"
+            title="上移"
+            @click="moveExercise(i, -1)"
+          >
+            <Icon icon="mdi:chevron-up" />
+          </button>
+          <button
+            type="button"
+            class="btn-icon"
+            aria-label="下移动作"
+            title="下移"
+            @click="moveExercise(i, 1)"
+          >
+            <Icon icon="mdi:chevron-down" />
+          </button>
+        </span>
         <input
           type="text"
           class="name-input"
@@ -383,13 +415,13 @@ function startNow() {
         </p>
         <label class="field-label" for="export-name-input">导出名称</label>
         <input
+          ref="exportInput"
           id="export-name-input"
           v-model="exportName"
           type="text"
           class="modal-input"
           placeholder="方案名称"
           @keyup.enter="confirmExport"
-          @focus="$event.target.select()"
         />
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost btn-sm" @click="showExportModal = false">取消</button>

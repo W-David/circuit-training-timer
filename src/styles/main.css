@@ -1,17 +1,25 @@
 :root {
-  --bg: #0d1017;
-  --surface: #151822;
-  --surface2: #1e2230;
-  --border: #282c38;
-  --text: #e4e6f2;
-  --text2: #6e7180;
+  --bg: #0a0d15;
+  --surface: #141926;
+  --surface2: #1c2334;
+  --border: #252d42;
+  --border-bright: #3b4568;
+  --text: #e9ecf7;
+  --text2: #7f87a3;
   --accent: #7c6ff7;
   --accent2: #a89eff;
-  --work: #2dd4a8;
+  --cyan: #22d3ee;
+  --work: #34e0b2;
   --rest: #f5a623;
+  --warm: #a78bfa;
   --danger: #ef4444;
-  --radius: 12px;
-  --radius-sm: 8px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --grad-main: linear-gradient(135deg, #22d3ee 0%, #7c6ff7 55%, #a855f7 100%);
+  --grad-work: linear-gradient(135deg, #2dd4bf 0%, #34d399 100%);
+  --grad-rest: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+  --grad-warm: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+  --glow-main: 0 8px 24px -8px rgba(124, 111, 247, 0.55);
 }
 
 * {
@@ -21,7 +29,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -32,8 +40,57 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 静态环境光 + 极淡网格纹理 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(74% 52% at 50% -14%, rgba(34, 211, 238, 0.16), transparent 64%),
+    radial-gradient(62% 48% at 90% 110%, rgba(168, 85, 247, 0.14), transparent 64%),
+    radial-gradient(52% 42% at 5% 106%, rgba(124, 111, 247, 0.12), transparent 62%), var(--bg);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+/* 计时相位强调光晕（由 App.vue 切换 class） */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.bg-glow.phase-w {
+  opacity: 1;
+  background: radial-gradient(80% 62% at 50% 42%, rgba(52, 224, 178, 0.17), transparent 72%);
+}
+
+.bg-glow.phase-r {
+  opacity: 1;
+  background: radial-gradient(80% 62% at 50% 42%, rgba(245, 166, 35, 0.16), transparent 72%);
+}
+
+.bg-glow.phase-u {
+  opacity: 1;
+  background: radial-gradient(80% 62% at 50% 42%, rgba(167, 139, 250, 0.19), transparent 72%);
+}
+
 body.timer-active {
-  background: #080a10;
+  background: #080b12;
 }
 
 body.fs.timer-active #app {
@@ -43,6 +100,14 @@ body.fs.timer-active #app {
 
 body.fs .timer-countdown {
   font-size: min(36vw, 24rem) !important;
+}
+
+body.fs .countdown-stage::before {
+  inset: -32px -52px;
+}
+
+body.fs .countdown-halo {
+  inset: -52px -76px;
 }
 
 body.fs .timer-ex-name {
@@ -58,11 +123,12 @@ body.fs .timer-ex-name {
 
 /* ---- Card ---- */
 .card {
-  background: var(--surface);
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px;
   margin-bottom: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
 .card-title {
@@ -78,8 +144,8 @@ body.fs .timer-ex-name {
 }
 
 /* ---- Inputs ---- */
-input[type="text"],
-input[type="number"] {
+input[type='text'],
+input[type='number'] {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -88,18 +154,21 @@ input[type="number"] {
   font-size: 0.85rem;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 111, 247, 0.16);
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
-input[type="number"]::-webkit-inner-spin-button {
+input[type='number']::-webkit-inner-spin-button {
   opacity: 1;
 }
 
@@ -224,9 +293,10 @@ input[type="number"]::-webkit-inner-spin-button {
   opacity: 1;
   border-color: var(--accent);
   color: var(--text);
+  box-shadow: 0 4px 16px -6px rgba(124, 111, 247, 0.5);
 }
 
-.icon-btn[aria-pressed="true"] {
+.icon-btn[aria-pressed='true'] {
   opacity: 1;
   border-color: var(--danger);
   color: var(--danger);
@@ -251,12 +321,16 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .btn-primary {
-  background: var(--accent);
+  background-color: var(--accent);
+  background-image: var(--grad-main);
   color: #fff;
+  box-shadow:
+    var(--glow-main),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .btn-primary:hover {
-  background: #6958e8;
+  filter: brightness(1.1);
 }
 
 .btn-ghost {
@@ -266,16 +340,21 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .btn-ghost:hover {
-  background: var(--surface2);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-bright);
 }
 
 .btn-danger {
-  background: var(--danger);
+  background-color: var(--danger);
+  background-image: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
   color: #fff;
+  box-shadow:
+    0 8px 20px -8px rgba(239, 68, 68, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .btn-danger:hover {
-  background: #dc2626;
+  filter: brightness(1.08);
 }
 
 .btn-sm {
@@ -316,8 +395,15 @@ input[type="number"]::-webkit-inner-spin-button {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 0;
+  padding: 8px 6px;
   border-bottom: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0 -6px;
+  transition: background 0.15s;
+}
+
+.ex-row:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .ex-row:last-child {
@@ -339,6 +425,25 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .ex-row .drag-handle:active {
   cursor: grabbing;
+}
+
+.ex-move {
+  display: inline-flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  opacity: 0.35;
+}
+
+.ex-move .btn-icon {
+  font-size: 0.9rem;
+  padding: 0 2px;
+  opacity: 0.8;
+}
+
+@media (min-width: 481px) {
+  .ex-move {
+    display: none;
+  }
 }
 
 .ex-row .name-input {
@@ -433,9 +538,12 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .icon-pick.on {
-  border-color: var(--accent);
-  background: rgba(124, 111, 247, 0.15);
+  border-color: rgba(124, 111, 247, 0.75);
+  background-image: linear-gradient(180deg, rgba(124, 111, 247, 0.28), rgba(124, 111, 247, 0.1));
   color: var(--accent2);
+  box-shadow:
+    0 0 0 1px rgba(124, 111, 247, 0.25),
+    0 4px 12px -4px rgba(124, 111, 247, 0.5);
 }
 
 .toggle-track {
@@ -453,7 +561,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .toggle-track::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 2px;
   left: 2px;
@@ -468,49 +576,7 @@ input[type="number"]::-webkit-inner-spin-button {
   transform: translateX(17px);
 }
 
-/* ---- Tags ---- */
-.tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  border-radius: 16px;
-  font-size: 0.78rem;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all 0.2s;
-  color: var(--text2);
-}
-
-.tag:hover {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
-.tag .del {
-  font-size: 0.85rem;
-  opacity: 0.3;
-  margin-left: 2px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.tag .del:hover {
-  opacity: 1;
-  color: var(--danger);
-}
-
 /* ---- Preset Home ---- */
-.preset-section {
-  margin-bottom: 18px;
-}
-
 .section-head {
   display: flex;
   align-items: center;
@@ -527,8 +593,18 @@ input[type="number"]::-webkit-inner-spin-button {
   color: var(--text);
 }
 
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .section-head h2 {
+    background-image: linear-gradient(120deg, #fff 10%, var(--accent2) 60%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
 .section-head h2 .iconify {
   color: var(--accent2);
+  filter: drop-shadow(0 0 8px rgba(124, 111, 247, 0.5));
 }
 
 /* 编辑页身份卡：主行统一 40px 高度对齐 */
@@ -569,6 +645,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .edit-title-input:focus {
   border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(124, 111, 247, 0.18) !important;
 }
 
 .edit-title-input::placeholder {
@@ -647,47 +724,86 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .preset-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
 .preset-card {
   position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  background: var(--surface);
+  background: linear-gradient(135deg, #2b3452 0%, #1a2136 45%, #0c0f1a 100%);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 14px 12px;
+  border-radius: var(--radius);
+  padding: 22px 16px 36px;
   cursor: pointer;
   text-align: left;
   font-family: inherit;
   color: var(--text);
-  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 20px -12px rgba(0, 0, 0, 0.6);
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .preset-card:hover {
-  border-color: var(--accent);
+  transform: translateY(-3px);
+  border-color: rgba(124, 111, 247, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 16px 32px -14px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(124, 111, 247, 0.12);
 }
 
 .preset-card.on {
-  border-color: var(--accent);
-  background: rgba(124, 111, 247, 0.08);
+  border-color: rgba(124, 111, 247, 0.6);
+  background: linear-gradient(135deg, rgba(124, 111, 247, 0.18) 0%, #1a2136 45%, #0c0f1a 100%);
 }
 
+/* 图标靠右侧垂直居中作氛围背景（@iconify 把 class 直接渲染在 svg 上） */
 .preset-icon {
-  font-size: 1.5rem;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
   color: var(--accent2);
-  margin-bottom: 4px;
+  opacity: 0.35;
+  filter: drop-shadow(0 0 8px rgba(124, 111, 247, 0.6));
+  pointer-events: none;
+  transition:
+    opacity 0.25s,
+    filter 0.25s;
+}
+
+.preset-card:hover .preset-icon {
+  opacity: 0.55;
+  filter: drop-shadow(0 0 10px rgba(124, 111, 247, 0.75));
+}
+
+/* 悬停时图标填充为青→紫渐变 */
+.preset-card:hover .preset-icon path {
+  fill: url(#preset-icon-grad);
+}
+
+.preset-card > .preset-name,
+.preset-card > .preset-meta {
+  position: relative;
 }
 
 .preset-name {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   gap: 3px;
+  margin-bottom: 4px;
 }
 
 .preset-pin {
@@ -697,18 +813,34 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .preset-meta {
   font-size: 0.7rem;
-  opacity: 0.55;
+  opacity: 0.6;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  padding-right: 64px;
 }
 
+/* 耗时小标签：固定在卡片右下角 */
 .preset-time {
-  font-size: 0.68rem;
-  opacity: 0.4;
+  position: absolute;
+  left: 12px;
+  bottom: 8px;
+  z-index: 1;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  opacity: 0.9;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
 }
 
 .preset-del {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   font-size: 1.05rem;
   line-height: 1;
   color: var(--text2);
@@ -720,6 +852,7 @@ input[type="number"]::-webkit-inner-spin-button {
   border: none;
   cursor: pointer;
   font-family: inherit;
+  z-index: 1;
 }
 
 .preset-del:hover {
@@ -746,15 +879,20 @@ input[type="number"]::-webkit-inner-spin-button {
   justify-content: center;
   color: var(--text2);
   text-align: center;
+  box-shadow: none;
 }
 
 .preset-new:hover {
   color: var(--text);
-  border-color: var(--accent);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    var(--grad-main) border-box;
+  transform: none;
 }
 
 .preset-new .preset-icon {
-  color: inherit;
+  color: var(--accent2);
 }
 
 /* ---- Current Preset Detail ---- */
@@ -803,14 +941,18 @@ input[type="number"]::-webkit-inner-spin-button {
 .detail-icon {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 12px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background-image: var(--grad-main);
+  background-color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 1.2rem;
+  box-shadow:
+    0 8px 20px -6px rgba(124, 111, 247, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .detail-titles {
@@ -850,7 +992,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .detail-ex:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.025);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
 }
 
 .ex-idx {
@@ -919,7 +1061,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .timer-phase {
   display: inline-block;
   padding: 3px 14px;
-  border-radius: 16px;
+  border-radius: 999px;
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -927,18 +1069,27 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .timer-phase.w {
-  background: rgba(45, 212, 168, 0.12);
+  background: rgba(52, 224, 178, 0.1);
   color: var(--work);
+  box-shadow:
+    inset 0 0 0 1px rgba(52, 224, 178, 0.25),
+    0 0 18px -4px rgba(52, 224, 178, 0.45);
 }
 
 .timer-phase.r {
-  background: rgba(245, 166, 35, 0.12);
+  background: rgba(245, 166, 35, 0.1);
   color: var(--rest);
+  box-shadow:
+    inset 0 0 0 1px rgba(245, 166, 35, 0.25),
+    0 0 18px -4px rgba(245, 166, 35, 0.45);
 }
 
 .timer-phase.u {
-  background: rgba(124, 111, 247, 0.12);
+  background: rgba(167, 139, 250, 0.12);
   color: var(--accent2);
+  box-shadow:
+    inset 0 0 0 1px rgba(167, 139, 250, 0.25),
+    0 0 18px -4px rgba(167, 139, 250, 0.45);
 }
 
 .timer-ex-name {
@@ -948,20 +1099,77 @@ input[type="number"]::-webkit-inner-spin-button {
   margin-bottom: 4px;
 }
 
+/* 倒计时签名区：相位色进度环 + 数字渐变 */
+.countdown-stage {
+  position: relative;
+  display: inline-block;
+  margin: 10px 0;
+}
+
+.countdown-stage::before {
+  content: '';
+  position: absolute;
+  inset: -20px -34px;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring, var(--accent2)) var(--pct, 0%), rgba(255, 255, 255, 0.055) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.countdown-halo {
+  position: absolute;
+  inset: -36px -52px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, var(--ring-glow, rgba(124, 111, 247, 0.18)), transparent 70%);
+  pointer-events: none;
+  transition: background 0.6s ease;
+}
+
 .timer-countdown {
+  position: relative;
   font-size: min(26vw, 12rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
   margin: 8px 0;
-  transition: color 0.3s;
-  user-select: none;
   color: var(--text);
+  user-select: none;
+  transition: color 0.3s;
 }
 
 .timer-countdown.urgent {
   color: var(--danger);
+}
+
+/* 数字文字光晕（纯色文字，避免 background-clip 兼容性问题） */
+.flip-digit .card-up > *,
+.flip-digit .card-lo > *,
+.flip-digit .fold-top > *,
+.flip-digit .fold-bot > * {
+  text-shadow: 0 0 18px rgba(124, 111, 247, 0.35);
+}
+
+.timer-countdown.urgent .flip-digit .card-up > *,
+.timer-countdown.urgent .flip-digit .card-lo > *,
+.timer-countdown.urgent .flip-digit .fold-top > *,
+.timer-countdown.urgent .flip-digit .fold-bot > * {
+  text-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
+}
+
+/* 冒号着色（不再继承纯白） */
+.timer-countdown .digit-sep {
+  color: var(--accent2);
+  text-shadow: 0 0 14px rgba(124, 111, 247, 0.45);
+  opacity: 0.9;
+}
+
+.timer-countdown.urgent .digit-sep {
+  color: var(--danger);
+  text-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
 }
 
 /* ---- Flip Clock ---- */
@@ -975,7 +1183,7 @@ input[type="number"]::-webkit-inner-spin-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.35;
+  opacity: 0.9;
   font-weight: 700;
   font-size: 0.85em;
   width: 0.35em;
@@ -993,7 +1201,9 @@ input[type="number"]::-webkit-inner-spin-button {
   line-height: 1;
   font-size: inherit;
   border-radius: 6px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .flip-digit .card-up,
@@ -1010,7 +1220,9 @@ input[type="number"]::-webkit-inner-spin-button {
   align-items: flex-start;
   background: linear-gradient(180deg, #2a3040 0%, #1e2430 100%);
   border-radius: 6px 6px 0 0;
-  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
   padding: 0 0.06em;
 }
 
@@ -1019,7 +1231,9 @@ input[type="number"]::-webkit-inner-spin-button {
   align-items: flex-end;
   background: linear-gradient(180deg, #161b26 0%, #0e1219 100%);
   border-radius: 0 0 6px 6px;
-  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.04), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
   padding: 0 0.06em;
 }
 
@@ -1050,7 +1264,9 @@ input[type="number"]::-webkit-inner-spin-button {
   align-items: flex-start;
   background: linear-gradient(180deg, #2a3040 0%, #1e2430 100%);
   border-radius: 6px 6px 0 0;
-  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
   transform-origin: bottom center;
   z-index: 3;
   padding: 0 0.06em;
@@ -1061,7 +1277,9 @@ input[type="number"]::-webkit-inner-spin-button {
   align-items: flex-end;
   background: linear-gradient(180deg, #161b26 0%, #0e1219 100%);
   border-radius: 0 0 6px 6px;
-  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.04), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
   transform-origin: top center;
   transform: rotateX(-90deg);
   z-index: 2;
@@ -1129,19 +1347,21 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .p-dot.work {
   /* 未完成 */
-  background: #2a2d38;
+  background: #262b3a;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .p-dot.past {
   /* 已完成 */
   background: var(--work);
+  box-shadow: 0 0 8px -2px rgba(52, 224, 178, 0.7);
 }
 
 .p-dot.now {
   /* 正在完成 */
   background: var(--work);
   transform: scale(2);
-  box-shadow: 0 0 10px var(--work);
+  box-shadow: 0 0 14px 1px rgba(52, 224, 178, 0.8);
 }
 
 .p-spacer {
@@ -1155,6 +1375,13 @@ input[type="number"]::-webkit-inner-spin-button {
   flex-wrap: wrap;
 }
 
+.timer-kbd-hint {
+  margin-top: 24px;
+  font-size: 0.72rem;
+  opacity: 0.35;
+  letter-spacing: 0.02em;
+}
+
 /* ---- Summary ---- */
 .summary-screen {
   text-align: center;
@@ -1162,8 +1389,9 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .summary-icon {
-  color: var(--accent);
+  color: var(--accent2);
   margin-bottom: 8px;
+  filter: drop-shadow(0 0 16px rgba(124, 111, 247, 0.55));
 }
 
 .summary-screen h2 {
@@ -1191,28 +1419,37 @@ input[type="number"]::-webkit-inner-spin-button {
   position: fixed;
   top: 20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -10px);
   z-index: 999;
-  background: var(--accent);
+  background-image: var(--grad-main);
+  background-color: var(--accent);
   color: #fff;
   padding: 8px 20px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 600;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s;
+  box-shadow:
+    0 10px 28px -8px rgba(124, 111, 247, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
 
 .toast.on {
   opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 /* ---- Modal ---- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(5, 7, 12, 0.66);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -1220,12 +1457,27 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .modal-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border: 1px solid var(--border-bright);
   border-radius: var(--radius);
   padding: 24px;
   min-width: 300px;
   max-width: 90vw;
+  box-shadow:
+    0 24px 60px -20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: modal-in 0.22s ease;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal-title {
@@ -1267,7 +1519,9 @@ input[type="number"]::-webkit-inner-spin-button {
 /* ---- Transitions ---- */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.25s, transform 0.25s;
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
 }
 
 .fade-enter-from,
@@ -1305,5 +1559,16 @@ input[type="number"]::-webkit-inner-spin-button {
 
   .preset-card {
     padding: 12px 12px 10px;
+  }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

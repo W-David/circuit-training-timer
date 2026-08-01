@@ -1,4 +1,4 @@
-import { reactive, computed } from 'vue'
+import { reactive } from 'vue'
 import { load, save, remove } from './useStorage.js'
 import BUILTIN from '../data/presets.json'
 import { normalizePreset } from '../utils/presetFormat.js'
@@ -18,9 +18,6 @@ function savePresets(data) {
 const state = reactive(loadPresets())
 
 export function usePresets() {
-  const customPresets = state
-  const customCount = computed(() => Object.keys(state).length)
-
   function savePreset(name, config, key) {
     const n = normalizePreset({ ...config, name })
     const k = key || name + '-' + Date.now()
@@ -60,14 +57,12 @@ export function usePresets() {
 
   return {
     builtinPresets: BUILTIN,
-    customPresets,
-    customCount,
+    customPresets: state,
     savePreset,
     deletePreset,
     loadBuiltin,
     loadDraft,
     saveDraft,
     clearDraft,
-    updatePresets: savePresets,
   }
 }

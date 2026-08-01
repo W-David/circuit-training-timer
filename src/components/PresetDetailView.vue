@@ -2,6 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { computed, inject, ref, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useEscClose } from '../composables/useEscClose.js'
 import { presetTotalSec, fmtMin } from '../utils/presetFormat.js'
 
 const route = useRoute()
@@ -12,6 +13,8 @@ const actions = inject('actions')
 const showForkModal = ref(false)
 const forkName = ref('')
 const forkInput = ref(null)
+
+useEscClose(showForkModal)
 
 const preset = computed(() => {
   const b = presets.builtinPresets.find((p) => p.key === route.params.key)

@@ -1,4 +1,6 @@
 <script setup>
+import { ref, watch } from 'vue'
+
 const props = defineProps({
   modelValue: { type: Number, required: true },
   min: { type: Number, default: 1 },
@@ -9,15 +11,40 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 
-function adjust(delta) {
-  setValue(props.modelValue + delta)
-}
+// 输入框允许暂存空值，失焦/回车时统一提交校验，避免输入被即时打断
+const inputVal = ref(String(props.modelValue))
+
+watch(
+  () => props.modelValue,
+  (v) => {
+    if (inputVal.value !== String(v)) inputVal.value = String(v)
+  },
+)
 
 function setValue(v) {
-  // 直接输入也做校验：非法值回落、四舍五入取整、夹取到 [min, max]
   let n = Number.isFinite(+v) ? +v : props.min
   n = Math.max(props.min, Math.min(props.max, Math.round(n)))
   emit('update:modelValue', n)
+}
+
+function onInput(e) {
+  const raw = e.target.value
+  inputVal.value = raw
+  if (raw === '') return
+  setValue(raw)
+}
+
+function commit() {
+  if (inputVal.value === '') {
+    inputVal.value = String(props.modelValue)
+    return
+  }
+  setValue(inputVal.value)
+}
+
+function adjust(delta) {
+  setValue(props.modelValue + delta)
+  inputVal.value = String(props.modelValue + delta)
 }
 </script>
 
@@ -28,10 +55,12 @@ function setValue(v) {
     <input
       class="val"
       type="number"
-      :value="modelValue"
+      :value="inputVal"
       :min="min"
       :max="max"
-      @input="setValue($event.target.value)"
+      @input="onInput"
+      @blur="commit"
+      @keyup.enter="commit"
     />
     <button type="button" aria-label="增加" @click="adjust(step)">+</button>
     <span v-if="unit" class="unit">{{ unit }}</span>
