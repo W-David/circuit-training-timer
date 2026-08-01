@@ -3,8 +3,11 @@ import { defineConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineConfig(({ mode }) => ({
-  plugins: [vue(), vueDevTools({ componentInspector: mode === 'development' })].filter(Boolean),
+  plugins: [
+    vue(),
+    ...(mode === 'development' ? [vueDevTools({ componentInspector: true })] : []),
+  ],
   test: {
-    environment: 'node'
-  }
+    environment: 'node',
+  },
 }))
