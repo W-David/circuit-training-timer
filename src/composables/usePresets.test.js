@@ -20,15 +20,15 @@ beforeEach(async () => {
 describe('usePresets', () => {
   it('saves a preset with name-timestamp key and normalized shape', () => {
     const p = usePresets()
-    const k = p.savePreset('我的方案', {
+    const k = p.savePreset('我的预设', {
       icon: 'mdi:fire',
       exercises: [{ name: '深蹲', work: 40, rest: 20 }],
       rounds: 2,
       restBetweenRounds: 30,
     })
-    expect(k).toMatch(/^我的方案-\d+$/)
+    expect(k).toMatch(/^我的预设-\d+$/)
     expect(p.customPresets[k]).toMatchObject({
-      name: '我的方案',
+      name: '我的预设',
       icon: 'mdi:fire',
       rounds: 2,
       restBetweenRounds: 30,

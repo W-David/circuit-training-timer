@@ -1,14 +1,16 @@
 <script setup>
 import { Icon } from '@iconify/vue'
-import { computed, inject, ref, nextTick } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useActions } from '../composables/useActions.js'
 import { useEscClose } from '../composables/useEscClose.js'
-import { presetTotalSec, fmtMin } from '../utils/presetFormat.js'
+import { usePresets } from '../composables/usePresets.js'
+import { fmtMin, presetTotalSec } from '../utils/presetFormat.js'
 
 const route = useRoute()
 const router = useRouter()
-const presets = inject('presets')
-const actions = inject('actions')
+const presets = usePresets()
+const actions = useActions()
 
 const showForkModal = ref(false)
 const forkName = ref('')
@@ -26,7 +28,7 @@ const preset = computed(() => {
 
 async function openFork() {
   if (!preset.value) return
-  forkName.value = (preset.value.name || '方案') + ' 副本'
+  forkName.value = (preset.value.name || '预设') + ' 副本'
   showForkModal.value = true
   await nextTick()
   forkInput.value?.focus()
@@ -44,7 +46,7 @@ function confirmFork() {
 <template>
   <div class="detail-page">
     <button type="button" class="back-link" @click="router.push('/')">
-      <Icon icon="mdi:arrow-left" />预设方案
+      <Icon icon="mdi:arrow-left" />返回首页
     </button>
 
     <section v-if="preset" class="detail-card">
@@ -54,7 +56,6 @@ function confirmFork() {
         </div>
         <div class="detail-titles">
           <div class="detail-name">
-            <Icon v-if="preset.kind === 'custom'" icon="mdi:pin" class="preset-pin" />
             {{ preset.name }}
           </div>
           <div class="detail-meta">
@@ -109,7 +110,7 @@ function confirmFork() {
     </section>
 
     <div v-else class="card empty-card">
-      方案不存在或已被删除
+      预设不存在或已被删除
     </div>
 
     <div
@@ -125,7 +126,7 @@ function confirmFork() {
           <Icon icon="mdi:content-copy" /> 另存为新预设
         </div>
         <p class="modal-desc">
-          复制「{{ preset?.name }}」到「我的预设」，原方案不会被修改。
+          复制「{{ preset?.name }}」到「我的预设」，原预设不会被修改。
         </p>
         <input
           ref="forkInput"

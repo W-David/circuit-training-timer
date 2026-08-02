@@ -4,7 +4,9 @@ import { formatMMSS } from '../utils/time.js'
 import { normalizePreset } from '../utils/presetFormat.js'
 import { useVoicePrompts } from './useVoicePrompts.js'
 
-export function useWorkout() {
+let workoutInstance = null
+
+function createWorkout() {
   const exercises = ref([])
   const rounds = ref(3)
   const restBetweenRounds = ref(30)
@@ -269,4 +271,9 @@ export function useWorkout() {
     goHome,
     fmt,
   }
+}
+
+export function useWorkout() {
+  if (!workoutInstance) workoutInstance = createWorkout()
+  return workoutInstance
 }

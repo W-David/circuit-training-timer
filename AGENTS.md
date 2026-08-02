@@ -19,9 +19,9 @@ No lint/typecheck scripts. CI: `.github/workflows/ci.yml` (test + build on push/
 | Path | Role |
 |------|------|
 | `src/main.js` | App bootstrap; SW registered only when `import.meta.env.PROD` |
-| `src/App.vue` | Shell: composables, `provide` (`workout`/`presets`/`actions`/`settings`/`toast`), timer/summary overlay, fullscreen/wake-lock/keyboard/mute, export-all/import-all actions |
+| `src/App.vue` | Shell: composables, timer/summary overlay, fullscreen/wake-lock/keyboard/mute |
 | `src/router.js` | Editor routes (`createWebHistory`) |
-| `src/composables/` | Workout engine, presets, audio, settings, storage, `useEscClose` |
+| `src/composables/` | Workout engine, presets, audio, settings, toast, actions, storage, `useEscClose` |
 | `src/utils/schedule.js` | Pure `buildSchedule` |
 | `src/utils/presetFormat.js` | Normalize / import parse / duration helpers |
 | `src/utils/time.js` | `formatMMSS` (shared by `FlipClock` + `workout.fmt`) |
@@ -36,7 +36,7 @@ No lint/typecheck scripts. CI: `.github/workflows/ci.yml` (test + build on push/
 - **View modes** on `workout.view`: `'editor' | 'timer' | 'summary'`. Router renders only when `view === 'editor'`. Timer/summary are siblings in `App.vue`, not routes.
 - **Edit isolation**: `PresetEditView` keeps a **local `draft`**. It must not call `workout.loadPreset` on open (`useWorkout` no longer exposes it). Only `actions.startConfig(draft)` / `savePreset` commit. New-draft autosave → `ct3-new-draft` (not the old `ct3-config`).
 - **另存为 ≠ 编辑**: `forkPreset` immediately copies into custom presets (name modal on detail). Edit only opens `/edit/:key` for existing custom presets.
-- Cross-view state via `provide`/`inject`: `'workout'`, `'presets'`, `'actions'`, `'settings'`.
+- Cross-view state comes from module-level singleton composables (`usePresets`/`useSettings`/`useToast`/`useWorkout`), no provide/inject. `useActions()` assembles shared actions from those singletons.
 - **Timer** (`useWorkout.js`): `requestAnimationFrame` + `performance.now()`. Pause excluded; skip adjusts timeline offset. Tab gap `>500ms` → catch-up **without** beeps/voice. Unpause re-prompts current step.
 - Call `audio.prime()` in the user gesture that starts a workout (iOS AudioContext). Single mute flag in `useSettings` → `useAudio`.
 - Stopping/going home while fullscreen must `exitFullscreen()` — `body.fs` leaves a blank page otherwise.

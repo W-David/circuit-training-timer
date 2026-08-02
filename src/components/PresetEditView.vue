@@ -1,9 +1,12 @@
 <script setup>
 import { Icon } from '@iconify/vue'
-import { reactive, ref, inject, watch, nextTick } from 'vue'
+import { reactive, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NumInput from './NumInput.vue'
 import { useEscClose } from '../composables/useEscClose.js'
+import { usePresets } from '../composables/usePresets.js'
+import { useToast } from '../composables/useToast.js'
+import { useActions } from '../composables/useActions.js'
 import defaults from '../data/defaults.json'
 import {
   PRESET_ICONS,
@@ -11,9 +14,9 @@ import {
   cloneConfig,
 } from '../utils/presetFormat.js'
 
-const actions = inject('actions')
-const presets = inject('presets')
-const toast = inject('toast', () => {})
+const actions = useActions()
+const presets = usePresets()
+const { toast } = useToast()
 const route = useRoute()
 const router = useRouter()
 
@@ -163,7 +166,7 @@ function handleImport(e) {
 function doSave() {
   const n = draft.name.trim()
   if (!n) {
-    toast('请先填写方案名称')
+    toast('请先填写预设名称')
     return
   }
   actions.savePreset(n, draftPayload(), editKey.value || undefined)
@@ -206,7 +209,7 @@ function startNow() {
       class="back-link"
       @click="router.push(editKey ? '/preset/' + editKey : '/')"
     >
-      <Icon icon="mdi:arrow-left" />预设方案
+      <Icon icon="mdi:arrow-left" />预设详情
     </button>
 
     <div class="card edit-identity">
@@ -219,8 +222,8 @@ function startNow() {
           v-model="draft.name"
           type="text"
           class="edit-title-input"
-          :placeholder="editKey ? '方案名称' : '新方案名称'"
-          aria-label="方案名称"
+          :placeholder="editKey ? '预设名称' : '新预设名称'"
+          aria-label="预设名称"
           @focus="$event.target.select()"
         />
         <div class="edit-identity-actions">
@@ -420,7 +423,7 @@ function startNow() {
           v-model="exportName"
           type="text"
           class="modal-input"
-          placeholder="方案名称"
+          placeholder="预设名称"
           @keyup.enter="confirmExport"
         />
         <div class="modal-actions">

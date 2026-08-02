@@ -1,6 +1,6 @@
 # 循环训练计时器
 
-Vue 3 + Vite 单页应用：预设方案、自定义编排、计时、语音/蜂鸣提示。界面文案为中文。
+Vue 3 + Vite 单页应用：预设、自定义编排、计时、语音/蜂鸣提示。界面文案为中文。
 
 ## 开发
 
@@ -37,7 +37,7 @@ pnpm test     # 单元测试
 | Key | 内容 |
 |-----|------|
 | `ct3-presets` | 自定义预设 |
-| `ct3-new-draft` | 新建方案未保存草稿 |
+| `ct3-new-draft` | 新建预设未保存草稿 |
 | `ct3-settings` | 静音等设置 |
 
 单预设导出 JSON：`{ v: 1, name, exercises, rounds, restBetweenRounds, warmupEnabled, warmupSeconds, icon?, exportedAt }`。全量备份：`{ v: 1, type: 'ct3-backup', presets: {...}, exportedAt }`。

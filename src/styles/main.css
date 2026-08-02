@@ -859,6 +859,7 @@ input[type='number']::-webkit-inner-spin-button {
   color: var(--text2);
   text-align: center;
   box-shadow: none;
+  padding-bottom: 22px;
 }
 
 .preset-new:hover {
@@ -870,8 +871,8 @@ input[type='number']::-webkit-inner-spin-button {
   transform: none;
 }
 
-.preset-new .preset-icon {
-  color: var(--accent2);
+.preset-new .preset-meta {
+  padding-right: 0;
 }
 
 /* ---- Current Preset Detail ---- */
@@ -1514,6 +1515,20 @@ input[type='number']::-webkit-inner-spin-button {
 .modal-input {
   width: 100%;
   margin-bottom: 14px;
+}
+
+.modal-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  max-height: 180px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
 }
 
 .modal-actions {
