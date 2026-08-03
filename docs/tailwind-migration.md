@@ -66,8 +66,9 @@ Tailwind utilities 将永远无法覆盖它们（例如 `input` 的背景、`.bt
 1. ✅ `NumInput.vue`（含 `.num-input`/`.dot`/`.val`/`.unit`）— 已完成，2026-08-03
 2. ✅ 全局小工具：`.spacer`、`.hidden-input`
 3. ✅ 按钮体系（Home/Detail/Timer/Summary/App）：`.btn` 系列、`.fs-btn`、
-   `.icon-btn`、`.top-actions`。工具类组合集中在 `src/utils/twClasses.js`；
-   `.btn` 系列 CSS 暂保留——编辑页仍在使用，随编辑页迁移一起删除。
+   `.icon-btn`、`.top-actions`。全部改为模板内直接书写原子类，不定义类名
+   常量（2026-08-03 起约定：模板中的 class 一律为 Tailwind 原子类字面量，
+   动态态用 `class="..."` + `:class="条件 ? '...' : ''"` 组合）。
 4. ✅ 弹窗体系：`.modal-*`、`.export-filename`、`.modal-box .field-label`
    （`@keyframes modal-in` 保留，由 `animate-[modal-in_0.22s_ease]` 引用）
 5. ✅ 首页：`.section-head`、`.preset-*`（卡片、图标、耗时标签、新建卡）— 已完成
@@ -128,8 +129,9 @@ Tailwind utilities 将永远无法覆盖它们（例如 `input` 的背景、`.bt
 - **`text-base` 会同时设置 line-height**：v4 的 `text-base` 带
   `line-height: 1.5`，旧样式只设 `font-size: 1rem`（继承 normal）。精确还原时
   用 `text-[1rem]`（arbitrary 只设 font-size）。
-- **尺寸变体需要 `!`**：`BTN_SM`/`BTN_LG` 与 base 的 padding/font-size/radius
-  冲突，Tailwind 生成顺序不确定，用 `px-3!` 等 important 变体保证覆盖。
+- **尺寸变体需要 `!`**：小/大尺寸变体（如 `px-3!`、`py-[14px]!`、
+  `text-[1rem]!`、`rounded-card!`）与基础类在 padding/font-size/radius 上
+  冲突，Tailwind 生成顺序不确定，用 important 变体保证覆盖。
 - **body 垂直居中放大 1px 级差异**：页面任何元素高度变化 2px 都会让全部内容
   整体位移 1px，截图 diff 会出现在整个页面而非改动元素本身，排查时先确认
   是否有全局位移。

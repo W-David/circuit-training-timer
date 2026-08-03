@@ -6,7 +6,6 @@ import { useActions } from '../composables/useActions.js'
 import { useEscClose } from '../composables/useEscClose.js'
 import { usePresets } from '../composables/usePresets.js'
 import { fmtMin, presetTotalSec } from '../utils/presetFormat.js'
-import { BTN_BLOCK, BTN_GHOST, BTN_LG, BTN_PRIMARY, BTN_SM, CARD } from '../utils/twClasses.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -75,12 +74,16 @@ function confirmFork() {
           <button
             v-if="preset.kind === 'custom'"
             type="button"
-            :class="[BTN_GHOST, BTN_SM]"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
             @click="router.push('/edit/' + preset.key)"
           >
             <Icon icon="mdi:pencil" />编辑
           </button>
-          <button type="button" :class="[BTN_GHOST, BTN_SM]" @click="openFork">
+          <button
+            type="button"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            @click="openFork"
+          >
             <Icon icon="mdi:content-copy" />另存为
           </button>
         </div>
@@ -114,14 +117,14 @@ function confirmFork() {
 
       <button
         type="button"
-        :class="[BTN_PRIMARY, BTN_LG, BTN_BLOCK, 'mt-3.5']"
+        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-8! py-[14px]! text-[1rem]! rounded-card! flex! w-full justify-center mt-3.5"
         @click="actions.startPreset(preset.key)"
       >
         <Icon icon="mdi:play" />开始训练
       </button>
     </section>
 
-    <div v-else :class="[CARD, 'text-center', 'p-8!', 'opacity-[0.5]']">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] text-center p-8! opacity-[0.5]">
       预设不存在或已被删除
     </div>
 
@@ -149,8 +152,16 @@ function confirmFork() {
           @keyup.enter="confirmFork"
         />
         <div class="flex gap-2 justify-end">
-          <button type="button" :class="[BTN_GHOST, BTN_SM]" @click="showForkModal = false">取消</button>
-          <button type="button" :class="[BTN_PRIMARY, BTN_SM]" @click="confirmFork">保存副本</button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            @click="showForkModal = false"
+          >取消</button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3! py-[5px]! text-[0.78rem]!"
+            @click="confirmFork"
+          >保存副本</button>
         </div>
       </div>
     </div>

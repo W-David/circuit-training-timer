@@ -12,7 +12,6 @@ import {
   cloneConfig,
   normalizePreset,
 } from '../utils/presetFormat.js'
-import { BTN_GHOST, BTN_PRIMARY, BTN_SM, CARD } from '../utils/twClasses.js'
 import NumInput from './NumInput.vue'
 
 const actions = useActions()
@@ -29,78 +28,6 @@ const exportName = ref('')
 const exportInput = ref(null)
 
 useEscClose(showExportModal)
-
-// 编辑页工具类（替代 main.css 中 .edit-*/ex-row/toggle/icon-pick 系列）
-const labelCls = 'text-[0.82rem] opacity-[0.6]'
-const iconPickCls = [
-  'size-10',
-  'rounded-[10px]',
-  'border',
-  'border-line',
-  'bg-surface-2',
-  'text-ink-2',
-  'cursor-pointer',
-  'inline-flex',
-  'items-center',
-  'justify-center',
-  'text-[1.25rem]',
-  'transition-all',
-  'duration-150',
-  'hover:border-accent',
-  'hover:text-ink',
-].join(' ')
-const iconPickOnCls = [
-  'border-[rgba(124,111,247,0.75)]!',
-  'bg-[image:linear-gradient(180deg,rgba(124,111,247,0.28),rgba(124,111,247,0.1))]!',
-  'text-accent-2!',
-  'shadow-[0_0_0_1px_rgba(124,111,247,0.25),0_4px_12px_-4px_rgba(124,111,247,0.5)]!',
-].join(' ')
-const trackCls = [
-  'relative',
-  'w-[38px]',
-  'h-[21px]',
-  'rounded-[11px]',
-  'bg-line',
-  'transition-colors',
-  'duration-[250ms]',
-  'shrink-0',
-  "after:content-['']",
-  'after:absolute',
-  'after:top-0.5',
-  'after:left-0.5',
-  'after:size-[17px]',
-  'after:rounded-full',
-  'after:bg-white',
-  'after:transition-transform',
-  'after:duration-[250ms]',
-].join(' ')
-const trackOnCls = 'bg-accent! after:translate-x-[17px]!'
-const exRowCls = [
-  'flex',
-  'items-center',
-  'gap-2',
-  'px-1.5',
-  'py-2',
-  'border-b',
-  'border-line',
-  'rounded-[10px]',
-  '-mx-1.5',
-  'transition-colors',
-  'duration-150',
-  'hover:bg-[rgba(255,255,255,0.03)]',
-  'last:border-b-0',
-  'max-[480px]:flex-wrap',
-].join(' ')
-const dragHandleCls =
-  'opacity-[0.35] text-[1rem] shrink-0 cursor-grab inline-flex touch-none active:cursor-grabbing'
-const exMoveCls = 'inline-flex flex-col shrink-0 opacity-[0.35] min-[481px]:hidden'
-const moveBtnCls =
-  'bg-transparent border-none text-ink-2 cursor-pointer text-[0.9rem] p-0 px-0.5 rounded-[4px] opacity-80 transition-all duration-200 hover:opacity-100'
-const delBtnCls =
-  'bg-transparent border-none text-danger cursor-pointer text-[1rem] p-1 rounded-[4px] opacity-50 transition-all duration-200 hover:opacity-100'
-const nameInputCls =
-  'flex-1 min-w-0 max-[480px]:flex-[1_1_100%] max-[480px]:min-w-full'
-const timeLabelCls = 'text-[0.7rem] opacity-50 font-semibold shrink-0 w-7 text-center'
 
 const draft = reactive({
   name: '',
@@ -285,7 +212,7 @@ function startNow() {
       <Icon icon="mdi:arrow-left" />预设详情
     </button>
 
-    <div :class="[CARD, 'p-4!']">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] p-4!">
       <div class="flex items-center gap-2.5 max-[480px]:flex-wrap">
         <div
           class="size-10 rounded-xl shrink-0 bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]"
@@ -305,14 +232,14 @@ function startNow() {
         <div class="flex items-center gap-2 shrink-0 max-[480px]:w-full">
           <button
             type="button"
-            :class="[BTN_GHOST, 'h-10', 'min-h-10', 'py-0!', 'px-3!', 'text-[0.82rem]!', 'max-[480px]:flex-1', 'max-[480px]:justify-center']"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright h-10 min-h-10 py-0! px-3! text-[0.82rem]! max-[480px]:flex-1 max-[480px]:justify-center"
             @click="openExport"
           >
             <Icon icon="mdi:upload" />导出
           </button>
           <button
             type="button"
-            :class="[BTN_GHOST, 'h-10', 'min-h-10', 'py-0!', 'px-3!', 'text-[0.82rem]!', 'max-[480px]:flex-1', 'max-[480px]:justify-center']"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright h-10 min-h-10 py-0! px-3! text-[0.82rem]! max-[480px]:flex-1 max-[480px]:justify-center"
             @click="importInput?.click()"
           >
             <Icon icon="mdi:download" />导入
@@ -332,7 +259,8 @@ function startNow() {
             v-for="ic in PRESET_ICONS"
             :key="ic"
             type="button"
-            :class="[iconPickCls, draft.icon === ic ? iconPickOnCls : '']"
+            class="size-10 rounded-[10px] border border-line bg-surface-2 text-ink-2 cursor-pointer inline-flex items-center justify-center text-[1.25rem] transition-all duration-150 hover:border-accent hover:text-ink"
+            :class="draft.icon === ic ? 'border-[rgba(124,111,247,0.75)]! bg-[image:linear-gradient(180deg,rgba(124,111,247,0.28),rgba(124,111,247,0.1))]! text-accent-2! shadow-[0_0_0_1px_rgba(124,111,247,0.25),0_4px_12px_-4px_rgba(124,111,247,0.5)]!' : ''"
             :aria-selected="draft.icon === ic"
             :title="ic"
             @click="draft.icon = ic"
@@ -344,7 +272,7 @@ function startNow() {
     </div>
 
     <!-- 热身 -->
-    <div :class="CARD">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2"><Icon icon="mdi:fire" />热身</div>
       <button
         type="button"
@@ -353,13 +281,17 @@ function startNow() {
         :aria-checked="draft.warmupEnabled"
         @click="draft.warmupEnabled = !draft.warmupEnabled"
       >
-        <span :class="[trackCls, draft.warmupEnabled ? trackOnCls : '']" aria-hidden="true"></span>
-        <span :class="labelCls">
+        <span
+          class="relative w-[38px] h-[21px] rounded-[11px] bg-line transition-colors duration-[250ms] shrink-0 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:size-[17px] after:rounded-full after:bg-white after:transition-transform after:duration-[250ms]"
+          :class="draft.warmupEnabled ? 'bg-accent! after:translate-x-[17px]!' : ''"
+          aria-hidden="true"
+        ></span>
+        <span class="text-[0.82rem] opacity-[0.6]">
           训练前热身{{ draft.warmupEnabled ? ' · ' + draft.warmupSeconds + ' 秒' : '' }}
         </span>
       </button>
       <div v-if="draft.warmupEnabled" class="flex items-center gap-2.5 mt-2.5">
-        <span :class="labelCls">热身时长</span>
+        <span class="text-[0.82rem] opacity-[0.6]">热身时长</span>
         <NumInput
           :model-value="draft.warmupSeconds"
           :min="10"
@@ -371,11 +303,15 @@ function startNow() {
     </div>
 
     <!-- 训练动作 -->
-    <div :class="CARD">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2">
         <Icon icon="mdi:dumbbell" />训练动作
         <span class="flex-1"></span>
-        <button type="button" :class="[BTN_GHOST, BTN_SM]" @click="addExercise">
+        <button
+          type="button"
+          class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+          @click="addExercise"
+        >
           <Icon icon="mdi:plus" />添加
         </button>
       </div>
@@ -385,20 +321,21 @@ function startNow() {
       <div
         v-for="(ex, i) in draft.exercises"
         :key="i"
-        :class="[exRowCls, dragFrom === i ? 'opacity-[0.45]' : '']"
+        class="flex items-center gap-2 px-1.5 py-2 border-b border-line rounded-[10px] -mx-1.5 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.03)] last:border-b-0 max-[480px]:flex-wrap"
+        :class="dragFrom === i ? 'opacity-[0.45]' : ''"
         draggable="true"
         @dragstart="onDragStart(i, $event)"
         @dragover="onDragOver"
         @drop="onDrop(i, $event)"
         @dragend="onDragEnd"
       >
-        <span :class="dragHandleCls" title="拖动排序" aria-hidden="true">
+        <span class="opacity-[0.35] text-[1rem] shrink-0 cursor-grab inline-flex touch-none active:cursor-grabbing" title="拖动排序" aria-hidden="true">
           <Icon icon="mdi:drag" />
         </span>
-        <span :class="exMoveCls">
+        <span class="inline-flex flex-col shrink-0 opacity-[0.35] min-[481px]:hidden">
           <button
             type="button"
-            :class="moveBtnCls"
+            class="bg-transparent border-none text-ink-2 cursor-pointer text-[0.9rem] p-0 px-0.5 rounded-[4px] opacity-80 transition-all duration-200 hover:opacity-100"
             aria-label="上移动作"
             title="上移"
             @click="moveExercise(i, -1)"
@@ -407,7 +344,7 @@ function startNow() {
           </button>
           <button
             type="button"
-            :class="moveBtnCls"
+            class="bg-transparent border-none text-ink-2 cursor-pointer text-[0.9rem] p-0 px-0.5 rounded-[4px] opacity-80 transition-all duration-200 hover:opacity-100"
             aria-label="下移动作"
             title="下移"
             @click="moveExercise(i, 1)"
@@ -417,13 +354,13 @@ function startNow() {
         </span>
         <input
           type="text"
-          :class="nameInputCls"
+          class="flex-1 min-w-0 max-[480px]:flex-[1_1_100%] max-[480px]:min-w-full"
           :value="ex.name"
           :placeholder="'动作' + (i + 1)"
           @input="ex.name = $event.target.value"
           @focus="$event.target.select()"
         />
-        <span :class="timeLabelCls">运动</span>
+        <span class="text-[0.7rem] opacity-50 font-semibold shrink-0 w-7 text-center">运动</span>
         <NumInput
           :model-value="ex.work"
           :min="1"
@@ -431,7 +368,7 @@ function startNow() {
           color="g"
           @update:model-value="ex.work = $event"
         />
-        <span :class="timeLabelCls">休息</span>
+        <span class="text-[0.7rem] opacity-50 font-semibold shrink-0 w-7 text-center">休息</span>
         <NumInput
           :model-value="ex.rest"
           :min="0"
@@ -441,7 +378,7 @@ function startNow() {
         />
         <button
           type="button"
-          :class="delBtnCls"
+          class="bg-transparent border-none text-danger cursor-pointer text-[1rem] p-1 rounded-[4px] opacity-50 transition-all duration-200 hover:opacity-100"
           aria-label="删除动作"
           @click="removeExercise(i)"
         >
@@ -450,10 +387,10 @@ function startNow() {
       </div>
     </div>
 
-    <div :class="CARD">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2"><Icon icon="mdi:repeat" />循环设置（随预设一起保存）</div>
       <div class="flex items-center gap-2.5 flex-wrap">
-        <span :class="labelCls">总轮数</span>
+        <span class="text-[0.82rem] opacity-[0.6]">总轮数</span>
         <NumInput
           :model-value="draft.rounds"
           :min="1"
@@ -462,7 +399,7 @@ function startNow() {
           unit=""
           @update:model-value="draft.rounds = $event"
         />
-        <span :class="[labelCls, 'ml-2']">轮间休息</span>
+        <span class="text-[0.82rem] opacity-[0.6] ml-2">轮间休息</span>
         <NumInput
           :model-value="draft.restBetweenRounds"
           :min="0"
@@ -474,10 +411,18 @@ function startNow() {
     </div>
 
     <div class="flex gap-2 flex-wrap mt-0.5">
-      <button type="button" :class="BTN_PRIMARY" @click="startNow">
+      <button
+        type="button"
+        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110"
+        @click="startNow"
+      >
         <Icon icon="mdi:play" />开始训练
       </button>
-      <button type="button" :class="BTN_GHOST" @click="doSave">
+      <button
+        type="button"
+        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
+        @click="doSave"
+      >
         <Icon icon="mdi:content-save" />{{ editKey ? '保存修改' : '保存为预设' }}
       </button>
     </div>
@@ -498,7 +443,7 @@ function startNow() {
           将下载为 JSON 文件，文件名：
           <b class="text-accent-2 font-bold">{{ (exportName.trim() || '预设') + '.json' }}</b>
         </p>
-        <label :class="[labelCls, 'block', 'mb-1.5']" for="export-name-input">导出名称</label>
+        <label class="text-[0.82rem] opacity-[0.6] block mb-1.5" for="export-name-input">导出名称</label>
         <input
           ref="exportInput"
           id="export-name-input"
@@ -509,8 +454,16 @@ function startNow() {
           @keyup.enter="confirmExport"
         />
         <div class="flex gap-2 justify-end">
-          <button type="button" :class="[BTN_GHOST, BTN_SM]" @click="showExportModal = false">取消</button>
-          <button type="button" :class="[BTN_PRIMARY, BTN_SM]" @click="confirmExport">确认导出</button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            @click="showExportModal = false"
+          >取消</button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3! py-[5px]! text-[0.78rem]!"
+            @click="confirmExport"
+          >确认导出</button>
         </div>
       </div>
     </div>
