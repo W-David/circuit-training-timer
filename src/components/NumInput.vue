@@ -49,11 +49,20 @@ function adjust(delta) {
 </script>
 
 <template>
-  <div class="num-input">
-    <span v-if="color" class="dot" :class="color"></span>
-    <button type="button" aria-label="减少" @click="adjust(-step)">−</button>
+  <div class="inline-flex items-center bg-surface-2 border border-line rounded-control h-8 overflow-hidden">
+    <span
+      v-if="color"
+      class="size-2 shrink-0 rounded-full mx-1.5"
+      :class="color === 'g' ? 'bg-work' : 'bg-rest'"
+    ></span>
+    <button
+      type="button"
+      aria-label="减少"
+      class="w-6 h-full border-none bg-transparent text-ink-2 cursor-pointer text-[0.85rem] font-[inherit] inline-flex items-center justify-center transition-all duration-150 shrink-0 leading-none hover:bg-line hover:text-ink active:bg-accent active:text-white"
+      @click="adjust(-step)"
+    >−</button>
     <input
-      class="val"
+      class="w-[38px] h-full border-none bg-transparent text-ink text-[0.85rem] text-center font-[inherit] outline-none p-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
       type="number"
       :value="inputVal"
       :min="min"
@@ -62,7 +71,12 @@ function adjust(delta) {
       @blur="commit"
       @keyup.enter="commit"
     />
-    <button type="button" aria-label="增加" @click="adjust(step)">+</button>
-    <span v-if="unit" class="unit">{{ unit }}</span>
+    <button
+      type="button"
+      aria-label="增加"
+      class="w-6 h-full border-none bg-transparent text-ink-2 cursor-pointer text-[0.85rem] font-[inherit] inline-flex items-center justify-center transition-all duration-150 shrink-0 leading-none hover:bg-line hover:text-ink active:bg-accent active:text-white"
+      @click="adjust(step)"
+    >+</button>
+    <span v-if="unit" class="text-[0.68rem] opacity-[0.45] pr-1">{{ unit }}</span>
   </div>
 </template>

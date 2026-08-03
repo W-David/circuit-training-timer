@@ -7,6 +7,7 @@ import { useAudio } from './composables/useAudio.js'
 import { useSettings } from './composables/useSettings.js'
 import { useToast } from './composables/useToast.js'
 import { useActions } from './composables/useActions.js'
+import { FAB, ICON_BTN, TOP_ACTIONS } from './utils/twClasses.js'
 import TimerView from './components/TimerView.vue'
 import SummaryView from './components/SummaryView.vue'
 
@@ -18,6 +19,29 @@ const actions = useActions()
 const { toast, text: toastText } = useToast()
 
 const isFullscreen = ref(false)
+
+const toastCls = [
+  'fixed',
+  'top-5',
+  'left-1/2',
+  'z-[999]',
+  'bg-[image:var(--grad-main)]',
+  'bg-accent',
+  'text-white',
+  'px-5',
+  'py-2',
+  'rounded-full',
+  'text-[0.82rem]',
+  'font-semibold',
+  'opacity-0',
+  'pointer-events-none',
+  'shadow-[0_10px_28px_-8px_rgba(124,111,247,0.6),inset_0_1px_0_rgba(255,255,255,0.25)]',
+  'transition-[opacity,transform]',
+  'duration-300',
+  '-translate-x-1/2',
+  '-translate-y-[10px]',
+].join(' ')
+const toastOnCls = 'opacity-100 -translate-y-0!'
 
 function handlePause() {
   workout.togglePause()
@@ -128,6 +152,16 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', onFS)
   document.addEventListener('keydown', onKey)
   document.addEventListener('visibilitychange', onVis)
+  // 开发调试：?demo=timer / ?demo=summary 直达计时/总结视图（仅 dev 构建生效，
+  // 供 scripts/visual-snapshot.mjs 交互视图回归使用）
+  if (import.meta.env.DEV) {
+    const demo = new URLSearchParams(location.search).get('demo')
+    if (demo === 'timer') {
+      actions.startPreset('f')
+    } else if (demo === 'summary') {
+      workout.view.value = 'summary'
+    }
+  }
 })
 
 onUnmounted(() => {
@@ -145,11 +179,11 @@ onUnmounted(() => {
     aria-hidden="true"
   ></div>
 
-  <div class="toast" :class="{ on: !!toastText }">{{ toastText }}</div>
+  <div :class="[toastCls, toastText ? toastOnCls : '']">{{ toastText }}</div>
 
-  <div class="top-actions" v-show="workout.view.value === 'timer' || workout.view.value === 'summary'">
+  <div :class="TOP_ACTIONS" v-show="workout.view.value === 'timer' || workout.view.value === 'summary'">
     <button
-      class="icon-btn"
+      :class="ICON_BTN"
       :title="settings.muted ? '开启声音' : '静音'"
       :aria-pressed="settings.muted"
       @click="toggleMute"
@@ -157,7 +191,7 @@ onUnmounted(() => {
       <Icon :icon="settings.muted ? 'mdi:volume-off' : 'mdi:volume-high'" />
     </button>
     <button
-      class="icon-btn"
+      :class="ICON_BTN"
       :title="isFullscreen ? '退出全屏' : '全屏'"
       @click="toggleFullscreen"
     >
@@ -167,7 +201,7 @@ onUnmounted(() => {
 
   <button
     v-show="workout.view.value === 'editor'"
-    class="fs-btn"
+    :class="FAB"
     @click="toggleFullscreen"
     :title="isFullscreen ? '退出全屏' : '全屏'"
   >
@@ -207,3 +241,44 @@ onUnmounted(() => {
     />
   </Transition>
 </template>
+
+<style>
+/* 计时相位强调光晕（由 view 动态切换 class） */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.bg-glow.phase-w {
+  opacity: 1;
+  background: radial-gradient(80% 62% at 50% 42%, rgba(52, 224, 178, 0.17), transparent 72%);
+}
+
+.bg-glow.phase-r {
+  opacity: 1;
+  background: radial-gradient(80% 62% at 50% 42%, rgba(245, 166, 35, 0.16), transparent 72%);
+}
+
+.bg-glow.phase-u {
+  opacity: 1;
+  background: radial-gradient(80% 62% at 50% 42%, rgba(167, 139, 250, 0.19), transparent 72%);
+}
+
+/* 计时/总结切换过渡 */
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+</style>

@@ -1,0 +1,12 @@
+/*
+ * Tailwind CSS 入口（位于项目根目录，使下方 @source 路径以项目根为基准）。
+ *
+ * 只引入 theme + utilities，不引入 preflight，避免改变任何元素默认样式。
+ * 显式排除文档/说明类文件：其中的类名示例不能被自动扫描误认为真实使用。
+ */
+@import 'tailwindcss/theme';
+@import 'tailwindcss/utilities';
+
+@source not './docs';
+@source not './AGENTS.md';
+@source not './README.md';

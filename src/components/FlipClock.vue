@@ -16,3 +16,11 @@ const chars = computed(() => formatMMSS(props.seconds, { ceil: true }).split('')
     <FlipDigit v-for="(ch, i) in chars" :key="i" :char="ch" />
   </span>
 </template>
+
+<style>
+.digit-group {
+  display: inline-flex;
+  gap: 6px;
+  align-items: stretch;
+}
+</style>
