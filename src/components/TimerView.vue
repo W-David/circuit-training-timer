@@ -66,7 +66,7 @@ const isWork = computed(() => props.currentStepType === 'work')
         <div
           v-else
           :class="
-            'size-[9px] rounded-full transition-all duration-300 ' +
+            'size-2.25 rounded-full transition-all duration-300 ' +
             (d.cls === 'now'
               ? 'bg-work scale-[2] shadow-[0_0_14px_1px_rgba(52,224,178,0.8)]'
               : d.cls === 'past'
@@ -85,7 +85,7 @@ const isWork = computed(() => props.currentStepType === 'work')
     <div class="flex gap-2.5 justify-center flex-wrap">
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-8! py-[14px]! text-[1rem]! rounded-card!"
+        class="inline-flex items-center gap-1.25 font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-8 py-3.5 text-[1rem] rounded-card"
         @click="press('pause', $event)"
       >
         <Icon :icon="paused ? 'mdi:play' : 'mdi:pause'" />
@@ -93,14 +93,14 @@ const isWork = computed(() => props.currentStepType === 'work')
       </button>
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
+        class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
         @click="press('skip', $event)"
       >
         <Icon icon="mdi:skip-next" />跳过
       </button>
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
+        class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
         @click="press('stop', $event)"
       >
         <Icon icon="mdi:stop" />结束

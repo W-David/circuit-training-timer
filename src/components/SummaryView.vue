@@ -25,13 +25,13 @@ defineEmits(['restart', 'home'])
     </div>
     <div class="flex gap-2.5 justify-center flex-wrap mt-4.5">
       <button
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110"
+        class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110"
         @click="$emit('restart')"
       >
         <Icon icon="mdi:refresh" />再来一轮
       </button>
       <button
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
+        class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
         @click="$emit('home')"
       >
         <Icon icon="mdi:home" />返回首页

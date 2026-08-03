@@ -212,7 +212,7 @@ function startNow() {
       <Icon icon="mdi:arrow-left" />预设详情
     </button>
 
-    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] p-4!">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] p-4">
       <div class="flex items-center gap-2.5 max-[480px]:flex-wrap">
         <div
           class="size-10 rounded-xl shrink-0 bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]"
@@ -224,7 +224,7 @@ function startNow() {
           id="preset-name-input"
           v-model="draft.name"
           type="text"
-          class="flex-[1_1_auto] min-w-0 h-10! box-border text-[0.95rem]! font-bold! leading-[1.2]! px-3! py-0! bg-surface-2! border! border-line! rounded-[10px]! text-ink! font-[inherit] focus:border-accent! focus:shadow-[0_0_0_3px_rgba(124,111,247,0.18)]! placeholder:font-semibold placeholder:opacity-40 max-[480px]:flex-[1_1_calc(100%-2.5rem-10px)]"
+          class="flex-[1_1_auto] min-w-0 h-10 box-border text-[0.95rem] font-bold leading-[1.2] px-3 py-0 bg-surface-2 border border-line rounded-[10px] text-ink font-[inherit] focus:border-accent focus:shadow-[0_0_0_3px_rgba(124,111,247,0.18)] placeholder:font-semibold placeholder:opacity-40 max-[480px]:flex-[1_1_calc(100%-2.5rem-10px)]"
           :placeholder="editKey ? '预设名称' : '新预设名称'"
           aria-label="预设名称"
           @focus="$event.target.select()"
@@ -232,14 +232,14 @@ function startNow() {
         <div class="flex items-center gap-2 shrink-0 max-[480px]:w-full">
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright h-10 min-h-10 py-0! px-3! text-[0.82rem]! max-[480px]:flex-1 max-[480px]:justify-center"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright h-10 min-h-10 py-0 px-3 text-[0.82rem] max-[480px]:flex-1 max-[480px]:justify-center"
             @click="openExport"
           >
             <Icon icon="mdi:upload" />导出
           </button>
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright h-10 min-h-10 py-0! px-3! text-[0.82rem]! max-[480px]:flex-1 max-[480px]:justify-center"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright h-10 min-h-10 py-0 px-3 text-[0.82rem] max-[480px]:flex-1 max-[480px]:justify-center"
             @click="importInput?.click()"
           >
             <Icon icon="mdi:download" />导入
@@ -260,7 +260,7 @@ function startNow() {
             :key="ic"
             type="button"
             class="size-10 rounded-[10px] border border-line bg-surface-2 text-ink-2 cursor-pointer inline-flex items-center justify-center text-[1.25rem] transition-all duration-150 hover:border-accent hover:text-ink"
-            :class="draft.icon === ic ? 'border-[rgba(124,111,247,0.75)]! bg-[image:linear-gradient(180deg,rgba(124,111,247,0.28),rgba(124,111,247,0.1))]! text-accent-2! shadow-[0_0_0_1px_rgba(124,111,247,0.25),0_4px_12px_-4px_rgba(124,111,247,0.5)]!' : ''"
+            :class="draft.icon === ic ? 'border-[rgba(124,111,247,0.75)]! bg-[linear-gradient(180deg,rgba(124,111,247,0.28),rgba(124,111,247,0.1))] text-accent-2! shadow-[0_0_0_1px_rgba(124,111,247,0.25),0_4px_12px_-4px_rgba(124,111,247,0.5)]' : ''"
             :aria-selected="draft.icon === ic"
             :title="ic"
             @click="draft.icon = ic"
@@ -272,7 +272,7 @@ function startNow() {
     </div>
 
     <!-- 热身 -->
-    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-4.5 mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2"><Icon icon="mdi:fire" />热身</div>
       <button
         type="button"
@@ -282,8 +282,8 @@ function startNow() {
         @click="draft.warmupEnabled = !draft.warmupEnabled"
       >
         <span
-          class="relative w-[38px] h-[21px] rounded-[11px] bg-line transition-colors duration-[250ms] shrink-0 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:size-[17px] after:rounded-full after:bg-white after:transition-transform after:duration-[250ms]"
-          :class="draft.warmupEnabled ? 'bg-accent! after:translate-x-[17px]!' : ''"
+          class="relative w-9.5 h-5.25 rounded-[11px] bg-line transition-colors duration-250 shrink-0 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:size-4.25 after:rounded-full after:bg-white after:transition-transform after:duration-250"
+          :class="draft.warmupEnabled ? 'bg-accent! after:translate-x-4.25' : ''"
           aria-hidden="true"
         ></span>
         <span class="text-[0.82rem] opacity-[0.6]">
@@ -303,13 +303,13 @@ function startNow() {
     </div>
 
     <!-- 训练动作 -->
-    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-4.5 mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2">
         <Icon icon="mdi:dumbbell" />训练动作
         <span class="flex-1"></span>
         <button
           type="button"
-          class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+          class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
           @click="addExercise"
         >
           <Icon icon="mdi:plus" />添加
@@ -387,7 +387,7 @@ function startNow() {
       </div>
     </div>
 
-    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-4.5 mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2"><Icon icon="mdi:repeat" />循环设置（随预设一起保存）</div>
       <div class="flex items-center gap-2.5 flex-wrap">
         <span class="text-[0.82rem] opacity-[0.6]">总轮数</span>
@@ -413,14 +413,14 @@ function startNow() {
     <div class="flex gap-2 flex-wrap mt-0.5">
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110"
+        class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110"
         @click="startNow"
       >
         <Icon icon="mdi:play" />开始训练
       </button>
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
+        class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
         @click="doSave"
       >
         <Icon icon="mdi:content-save" />{{ editKey ? '保存修改' : '保存为预设' }}
@@ -456,12 +456,12 @@ function startNow() {
         <div class="flex gap-2 justify-end">
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
             @click="showExportModal = false"
           >取消</button>
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3 py-1.25 text-[0.78rem]"
             @click="confirmExport"
           >确认导出</button>
         </div>

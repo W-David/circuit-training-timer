@@ -158,7 +158,7 @@ onUnmounted(() => {
   <div
     :class="[
       'fixed top-5 left-1/2 z-[999] bg-[image:var(--grad-main)] bg-accent text-white px-5 py-2 rounded-full text-[0.82rem] font-semibold opacity-0 pointer-events-none shadow-[0_10px_28px_-8px_rgba(124,111,247,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] transition-[opacity,transform] duration-300 -translate-x-1/2 -translate-y-[10px]',
-      toastText ? 'opacity-100 -translate-y-0!' : '',
+      toastText ? 'opacity-100 -translate-y-0' : '',
     ]"
   >{{ toastText }}</div>
 

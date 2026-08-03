@@ -19,7 +19,7 @@
 - `@theme` 令牌先映射既有 CSS 变量（同一数据源），迁移过程中不改变 `:root` 的值：
 
   | 令牌 | 取值 | 用法示例 |
-  |------|------|----------|
+  | ------ | ------ | ---------- |
   | `--color-bg/surface/surface-2` | `var(--bg/--surface/--surface2)` | `bg-surface-2` |
   | `--color-line/line-bright` | `var(--border/--border-bright)` | `border-line` |
   | `--color-ink/ink-2` | `var(--text/--text2)` | `text-ink-2` |

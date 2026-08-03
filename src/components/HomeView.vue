@@ -107,14 +107,14 @@ function confirmBackup() {
       <span class="flex-1"></span>
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+        class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
         @click="askBackup"
       >
         <Icon icon="mdi:export" />保存备份
       </button>
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+        class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
         @click="backupInput?.click()"
       >
         <Icon icon="mdi:import" />加载备份
@@ -134,14 +134,14 @@ function confirmBackup() {
         <div
           v-for="p in presets.builtinPresets"
           :key="p.key"
-          class="relative overflow-hidden flex flex-col gap-[3px] bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-[22px] px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-[3px] hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3! max-[480px]:pt-3! max-[480px]:pb-[10px]!"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-0.75 hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5"
           role="button"
           tabindex="0"
           @click="router.push('/preset/' + p.key)"
           @keydown.enter="router.push('/preset/' + p.key)"
         >
-          <Icon v-if="p.icon" :icon="p.icon" class="absolute right-4 top-1/2 -translate-y-1/2 size-10 text-accent-2 opacity-[0.35] drop-shadow-[0_0_8px_rgba(124,111,247,0.6)] pointer-events-none transition-[opacity,filter] duration-[250ms] group-hover:opacity-[0.55] group-hover:drop-shadow-[0_0_10px_rgba(124,111,247,0.75)] group-hover:[&_path]:fill-[url(#preset-icon-grad)]" />
-          <div class="relative flex items-center gap-[3px] mb-1 text-[1rem] font-extrabold">{{ p.name }}</div>
+          <Icon v-if="p.icon" :icon="p.icon" class="absolute right-4 top-1/2 -translate-y-1/2 size-10 text-accent-2 opacity-[0.35] drop-shadow-[0_0_8px_rgba(124,111,247,0.6)] pointer-events-none transition-[opacity,filter] duration-250 group-hover:opacity-[0.55] group-hover:drop-shadow-[0_0_10px_rgba(124,111,247,0.75)] group-hover:[&_path]:fill-[url(#preset-icon-grad)]" />
+          <div class="relative flex items-center gap-0.75 mb-1 text-[1rem] font-extrabold">{{ p.name }}</div>
           <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-16">{{ p.exercises.length }} 个动作 · {{ p.rounds }} 轮</div>
           <div class="absolute left-3 bottom-2 z-1 text-[0.64rem] font-bold tracking-[0.02em] text-ink opacity-[0.9] py-0.5 px-2 rounded-full bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.07)] shadow-[0_2px_6px_rgba(0,0,0,0.2)] pointer-events-none">{{ fmtMin(presetTotalSec(p)) }}</div>
         </div>
@@ -155,13 +155,13 @@ function confirmBackup() {
         <div
           v-for="p in customPresets"
           :key="p.key"
-          class="relative overflow-hidden flex flex-col gap-[3px] bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-[22px] px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-[3px] hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3! max-[480px]:pt-3! max-[480px]:pb-[10px]!"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-0.75 hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5"
           role="button"
           tabindex="0"
           @click="router.push('/preset/' + p.key)"
           @keydown.enter="router.push('/preset/' + p.key)"
         >
-          <Icon :icon="p.icon || 'mdi:tune-variant'" class="absolute right-4 top-1/2 -translate-y-1/2 size-10 text-accent-2 opacity-[0.35] drop-shadow-[0_0_8px_rgba(124,111,247,0.6)] pointer-events-none transition-[opacity,filter] duration-[250ms] group-hover:opacity-[0.55] group-hover:drop-shadow-[0_0_10px_rgba(124,111,247,0.75)] group-hover:[&_path]:fill-[url(#preset-icon-grad)]" />
+          <Icon :icon="p.icon || 'mdi:tune-variant'" class="absolute right-4 top-1/2 -translate-y-1/2 size-10 text-accent-2 opacity-[0.35] drop-shadow-[0_0_8px_rgba(124,111,247,0.6)] pointer-events-none transition-[opacity,filter] duration-250 group-hover:opacity-[0.55] group-hover:drop-shadow-[0_0_10px_rgba(124,111,247,0.75)] group-hover:[&_path]:fill-[url(#preset-icon-grad)]" />
           <button
             type="button"
             class="absolute top-1.5 right-1.5 text-[1.05rem] leading-none text-ink-2 opacity-[0.35] p-0.5 rounded-md inline-flex bg-transparent border-none cursor-pointer font-[inherit] z-1 hover:opacity-100 hover:text-danger"
@@ -171,20 +171,20 @@ function confirmBackup() {
           >
             <Icon icon="mdi:close-circle" />
           </button>
-          <div class="relative flex items-center gap-[3px] mb-1 text-[1rem] font-extrabold">{{ p.name }}</div>
+          <div class="relative flex items-center gap-0.75 mb-1 text-[1rem] font-extrabold">{{ p.name }}</div>
           <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-16">{{ p.exercises.length }} 个动作 · {{ p.rounds }} 轮</div>
           <div class="absolute left-3 bottom-2 z-1 text-[0.64rem] font-bold tracking-[0.02em] text-ink opacity-[0.9] py-0.5 px-2 rounded-full bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.07)] shadow-[0_2px_6px_rgba(0,0,0,0.2)] pointer-events-none">{{ fmtMin(presetTotalSec(p)) }}</div>
         </div>
 
         <div
-          class="relative overflow-hidden flex flex-col gap-[3px] bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-[22px] px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-[3px] hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3! max-[480px]:pt-3! max-[480px]:pb-[10px]! border-dashed! items-center justify-center text-center! text-ink-2! shadow-none! pb-[22px]! hover:text-ink! hover:border-transparent! hover:translate-y-0! hover:[background:linear-gradient(var(--surface),var(--surface))_padding-box,var(--grad-main)_border-box]!"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 cursor-pointer font-[inherit] transition-[transform,border-color,box-shadow] duration-200 group hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5 border-dashed items-center justify-center text-center text-ink-2 shadow-none pb-5.5 hover:text-ink hover:border-transparent hover:translate-y-0 hover:[background:linear-gradient(var(--surface),var(--surface))_padding-box,var(--grad-main)_border-box]"
           role="button"
           tabindex="0"
           @click="router.push('/new')"
           @keydown.enter="router.push('/new')"
         >
-          <div class="relative flex items-center gap-[3px] mb-1 text-[1rem] font-extrabold">新建预设</div>
-          <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-16 pr-0!">定制你的训练</div>
+          <div class="relative flex items-center gap-0.75 mb-1 text-[1rem] font-extrabold">新建预设</div>
+          <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-0">定制你的训练</div>
         </div>
       </div>
     </div>
@@ -205,13 +205,13 @@ function confirmBackup() {
         <div class="flex gap-2 justify-end">
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
             @click="pendingDelete = null"
           >取消</button>
           <button
             ref="confirmBtn"
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-danger bg-[image:linear-gradient(135deg,#f87171,#dc2626)] text-white shadow-[0_8px_20px_-8px_rgba(239,68,68,0.55),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-[1.08] px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-danger bg-[linear-gradient(135deg,#f87171,#dc2626)] text-white shadow-[0_8px_20px_-8px_rgba(239,68,68,0.55),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-[1.08] px-3 py-1.25 text-[0.78rem]"
             @click="confirmDelete"
           >删除</button>
         </div>
@@ -240,13 +240,13 @@ function confirmBackup() {
         <div class="flex gap-2 justify-end">
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
             @click="pendingBackup = null"
           >取消</button>
           <button
             ref="backupConfirmBtn"
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3 py-1.25 text-[0.78rem]"
             @click="confirmBackup"
           >
             保存备份

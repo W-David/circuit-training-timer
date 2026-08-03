@@ -74,14 +74,14 @@ function confirmFork() {
           <button
             v-if="preset.kind === 'custom'"
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
             @click="router.push('/edit/' + preset.key)"
           >
             <Icon icon="mdi:pencil" />编辑
           </button>
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
             @click="openFork"
           >
             <Icon icon="mdi:content-copy" />另存为
@@ -94,7 +94,7 @@ function confirmFork() {
           v-if="preset.warmupEnabled"
           class="flex items-center gap-2 px-2 py-1.25 rounded-lg text-[0.82rem] odd:bg-[linear-gradient(90deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))]"
         >
-          <span class="size-4.5 rounded-full bg-accent! text-white! text-[0.65rem] inline-flex items-center justify-center shrink-0">热</span>
+          <span class="size-4.5 rounded-full bg-accent text-white text-[0.65rem] inline-flex items-center justify-center shrink-0">热</span>
           <span class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-semibold">热身</span>
           <span class="shrink-0 tabular-nums text-[0.75rem] opacity-[0.75]">
             <b class="text-accent-2">{{ preset.warmupSeconds }}s</b>
@@ -117,14 +117,14 @@ function confirmFork() {
 
       <button
         type="button"
-        class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-8! py-[14px]! text-[1rem]! rounded-card! flex! w-full justify-center mt-3.5"
+        class="items-center gap-1.25 font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-8 py-3.5 text-[1rem] rounded-card flex w-full justify-center mt-3.5"
         @click="actions.startPreset(preset.key)"
       >
         <Icon icon="mdi:play" />开始训练
       </button>
     </section>
 
-    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-[18px] mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] text-center p-8! opacity-[0.5]">
+    <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] text-center p-8 opacity-[0.5]">
       预设不存在或已被删除
     </div>
 
@@ -154,12 +154,12 @@ function confirmFork() {
         <div class="flex gap-2 justify-end">
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border! bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
             @click="showForkModal = false"
           >取消</button>
           <button
             type="button"
-            class="inline-flex items-center gap-[5px] px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-[image:var(--grad-main)] text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3! py-[5px]! text-[0.78rem]!"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3 py-1.25 text-[0.78rem]"
             @click="confirmFork"
           >保存副本</button>
         </div>
