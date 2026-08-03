@@ -53,7 +53,7 @@ function adjust(delta) {
     <span
       v-if="color"
       class="size-2 shrink-0 rounded-full mx-1.5"
-      :class="color === 'g' ? 'bg-work' : 'bg-rest'"
+      :class="color === 'g' ? 'bg-work' : color === 'w' ? 'bg-warm' : 'bg-rest'"
     ></span>
     <button
       type="button"
@@ -77,6 +77,6 @@ function adjust(delta) {
       class="w-6 h-full border-none bg-transparent text-ink-2 cursor-pointer text-[0.85rem] font-[inherit] inline-flex items-center justify-center transition-all duration-150 shrink-0 leading-none hover:bg-line hover:text-ink active:bg-accent active:text-white"
       @click="adjust(step)"
     >+</button>
-    <span v-if="unit" class="text-[0.68rem] opacity-[0.45] pr-1">{{ unit }}</span>
+    <span v-if="unit" class="text-[0.68rem] opacity-[0.45] px-1.5">{{ unit }}</span>
   </div>
 </template>

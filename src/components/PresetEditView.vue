@@ -23,10 +23,12 @@ const router = useRouter()
 const importInput = ref(null)
 const editKey = ref(null)
 const dragFrom = ref(-1)
+const showIconPicker = ref(false)
 const showExportModal = ref(false)
 const exportName = ref('')
 const exportInput = ref(null)
 
+useEscClose(showIconPicker)
 useEscClose(showExportModal)
 
 const draft = reactive({
@@ -64,6 +66,11 @@ function applyToDraft(cfg) {
 
 function draftPayload() {
   return cloneConfig(draft)
+}
+
+function pickIcon(ic) {
+  draft.icon = ic
+  showIconPicker.value = false
 }
 
 function persistNewDraft() {
@@ -214,11 +221,49 @@ function startNow() {
 
     <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] p-4">
       <div class="flex items-center gap-2.5 max-[480px]:flex-wrap">
-        <div
-          class="size-10 rounded-xl shrink-0 bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]"
-          aria-hidden="true"
-        >
-          <Icon :icon="draft.icon || 'mdi:tune-variant'" />
+        <div class="relative shrink-0">
+          <div
+            type="button"
+            class="relative size-10 rounded-xl bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] cursor-pointer transition-[filter,transform] duration-200 hover:brightness-110 active:scale-95"
+            @click="showIconPicker = !showIconPicker"
+          >
+            <Icon :icon="draft.icon || 'mdi:tune-variant'" />
+            <span class="absolute -bottom-1 -right-1 size-4.5 rounded-full bg-surface-2 border border-line text-ink-2 inline-flex items-center justify-center pointer-events-none">
+              <Icon icon="mdi:pencil" class="text-[0.6rem]" />
+            </span>
+          </div>
+
+          <Transition name="fade">
+            <div
+              v-if="showIconPicker"
+              class="fixed inset-0 z-40"
+              aria-hidden="true"
+              @click="showIconPicker = false"
+            ></div>
+          </Transition>
+          <Transition name="pop">
+            <div
+              v-if="showIconPicker"
+              class="absolute top-full left-0 z-50 mt-2 w-60 max-w-[calc(100vw-32px)] bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-2.5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)]"
+              role="dialog"
+              aria-label="选择图标"
+            >
+              <div class="grid place-items-center grid-cols-4 gap-2 max-h-80 p-2 overflow-y-auto" role="listbox" aria-label="选择图标">
+                <button
+                  v-for="ic in PRESET_ICONS"
+                  :key="ic"
+                  type="button"
+                  class="size-9 rounded-[10px] border border-line bg-surface-2 text-ink-2 cursor-pointer inline-flex items-center justify-center text-[1.1rem] transition-all duration-150 hover:border-accent hover:text-ink"
+                  :class="draft.icon === ic ? 'border-[rgba(124,111,247,0.75)]! bg-[linear-gradient(180deg,rgba(124,111,247,0.28),rgba(124,111,247,0.1))] text-accent-2! shadow-[0_0_0_1px_rgba(124,111,247,0.25),0_4px_12px_-4px_rgba(124,111,247,0.5)]' : ''"
+                  :aria-selected="draft.icon === ic"
+                  :title="ic"
+                  @click="pickIcon(ic)"
+                >
+                  <Icon :icon="ic" />
+                </button>
+              </div>
+            </div>
+          </Transition>
         </div>
         <input
           id="preset-name-input"
@@ -253,22 +298,6 @@ function startNow() {
           />
         </div>
       </div>
-      <div class="mt-3 pt-3 border-t border-line">
-        <div class="flex flex-wrap gap-1.5" role="listbox" aria-label="选择图标">
-          <button
-            v-for="ic in PRESET_ICONS"
-            :key="ic"
-            type="button"
-            class="size-10 rounded-[10px] border border-line bg-surface-2 text-ink-2 cursor-pointer inline-flex items-center justify-center text-[1.25rem] transition-all duration-150 hover:border-accent hover:text-ink"
-            :class="draft.icon === ic ? 'border-[rgba(124,111,247,0.75)]! bg-[linear-gradient(180deg,rgba(124,111,247,0.28),rgba(124,111,247,0.1))] text-accent-2! shadow-[0_0_0_1px_rgba(124,111,247,0.25),0_4px_12px_-4px_rgba(124,111,247,0.5)]' : ''"
-            :aria-selected="draft.icon === ic"
-            :title="ic"
-            @click="draft.icon = ic"
-          >
-            <Icon :icon="ic" />
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- 热身 -->
@@ -296,6 +325,7 @@ function startNow() {
           :model-value="draft.warmupSeconds"
           :min="10"
           :max="600"
+          color="w"
           unit="秒"
           @update:model-value="draft.warmupSeconds = $event"
         />
@@ -388,7 +418,7 @@ function startNow() {
     </div>
 
     <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line rounded-card p-4.5 mb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
-      <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2"><Icon icon="mdi:repeat" />循环设置（随预设一起保存）</div>
+      <div class="text-[0.7rem] uppercase tracking-[0.08em] text-ink-2 font-bold mb-3.5 flex items-center gap-2"><Icon icon="mdi:repeat" />循环轮次</div>
       <div class="flex items-center gap-2.5 flex-wrap">
         <span class="text-[0.82rem] opacity-[0.6]">总轮数</span>
         <NumInput
@@ -469,3 +499,36 @@ function startNow() {
     </div>
   </div>
 </template>
+
+<style>
+.pop-enter-active {
+  transition:
+    opacity 0.18s ease-out,
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top left;
+  will-change: opacity, transform;
+}
+
+.pop-leave-active {
+  transition:
+    opacity 0.12s ease-in,
+    transform 0.12s ease-in;
+  transform-origin: top left;
+}
+
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
