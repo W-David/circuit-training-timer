@@ -127,7 +127,7 @@ function confirmFork() {
 
     <div
       v-if="showForkModal"
-      class="fixed inset-0 z-[200px] flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
+      class="fixed inset-0 z-200 flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="fork-title"
