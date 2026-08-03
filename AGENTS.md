@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Vue 3 + Vite SPA (circuit training timer). UI copy is Chinese (`zh-CN`). Package manager: **pnpm** (`packageManager`: pnpm@11.13.0).
+Vue 3 + Vite SPA (circuit training timer). UI copy is Chinese (`zh-CN`). Package manager: **pnpm** (`packageManager`: pnpm@11.18.0).
 
 ## Commands
 

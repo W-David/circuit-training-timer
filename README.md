@@ -14,6 +14,9 @@ pnpm preview  # 预览构建结果
 pnpm test     # 单元测试
 ```
 
+样式已接入 Tailwind CSS，逐步迁移的步骤见
+[`docs/tailwind-migration.md`](docs/tailwind-migration.md)。
+
 ## 使用说明
 
 - 首页浏览系统预设 / 我的预设；支持「保存备份 / 加载备份」整机备份

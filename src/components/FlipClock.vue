@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
-import FlipDigit from './FlipDigit.vue'
 import { formatMMSS } from '../utils/time.js'
+import FlipDigit from './FlipDigit.vue'
 
 const props = defineProps({
   seconds: { type: Number, default: 0 },
@@ -12,7 +12,7 @@ const chars = computed(() => formatMMSS(props.seconds, { ceil: true }).split('')
 </script>
 
 <template>
-  <span class="digit-group">
+  <span class="inline-flex gap-1.5 items-stretch">
     <FlipDigit v-for="(ch, i) in chars" :key="i" :char="ch" />
   </span>
 </template>

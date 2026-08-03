@@ -84,7 +84,7 @@ function confirmBackup() {
 </script>
 
 <template>
-  <div class="home-page">
+  <div>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="preset-icon-grad" x1="0" y1="0" x2="1" y2="1">
@@ -95,127 +95,160 @@ function confirmBackup() {
       </defs>
     </svg>
 
-    <div class="section-head">
-      <h2><Icon icon="mdi:lightning-bolt" />循环训练计时器</h2>
-      <span class="spacer"></span>
-      <button type="button" class="btn btn-ghost btn-sm" @click="askBackup">
+    <div class="flex items-center gap-2.5 mb-3">
+      <h2
+        class="flex items-center gap-1.5 text-[1.05rem] font-extrabold text-ink supports-[(-webkit-background-clip:text)_or_(background-clip:text)]:bg-[linear-gradient(120deg,#fff_10%,var(--accent2)_60%,var(--cyan)_100%)] supports-[(-webkit-background-clip:text)_or_(background-clip:text)]:[-webkit-background-clip:text] supports-[(-webkit-background-clip:text)_or_(background-clip:text)]:bg-clip-text supports-[(-webkit-background-clip:text)_or_(background-clip:text)]:text-transparent"
+      >
+        <Icon
+          icon="mdi:lightning-bolt"
+          class="text-accent-2 drop-shadow-[0_0_8px_rgba(124,111,247,0.5)]"
+        />循环训练计时器
+      </h2>
+      <span class="flex-1"></span>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
+        @click="askBackup"
+      >
         <Icon icon="mdi:export" />保存备份
       </button>
-      <button type="button" class="btn btn-ghost btn-sm" @click="backupInput?.click()">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
+        @click="backupInput?.click()"
+      >
         <Icon icon="mdi:import" />加载备份
       </button>
       <input
         ref="backupInput"
         type="file"
         accept=".json,application/json"
-        class="hidden-input"
+        class="hidden"
         @change="handleBackupImport"
       />
     </div>
 
-    <div class="preset-group">
-      <div class="preset-group-title">系统预设</div>
-      <div v-if="presets.builtinPresets.length" class="preset-grid">
+    <div class="mb-5 last:mb-0">
+      <div class="text-[0.72rem] font-bold tracking-[0.06em] uppercase text-ink-2 mb-2.5">系统预设</div>
+      <div v-if="presets.builtinPresets.length" class="grid grid-cols-3 gap-2.5 max-[480px]:grid-cols-2">
         <div
           v-for="p in presets.builtinPresets"
           :key="p.key"
-          class="preset-card"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-0.75 hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5"
           role="button"
           tabindex="0"
           @click="router.push('/preset/' + p.key)"
           @keydown.enter="router.push('/preset/' + p.key)"
         >
-          <Icon v-if="p.icon" :icon="p.icon" class="preset-icon" />
-          <div class="preset-name">{{ p.name }}</div>
-          <div class="preset-meta">{{ p.exercises.length }} 个动作 · {{ p.rounds }} 轮</div>
-          <div class="preset-time">{{ fmtMin(presetTotalSec(p)) }}</div>
+          <Icon v-if="p.icon" :icon="p.icon" class="absolute right-4 top-1/2 -translate-y-1/2 size-10 text-accent-2 opacity-[0.35] drop-shadow-[0_0_8px_rgba(124,111,247,0.6)] pointer-events-none transition-[opacity,filter] duration-250 group-hover:opacity-[0.55] group-hover:drop-shadow-[0_0_10px_rgba(124,111,247,0.75)] group-hover:[&_path]:fill-[url(#preset-icon-grad)]" />
+          <div class="relative flex items-center gap-0.75 mb-1 text-[1rem] font-extrabold">{{ p.name }}</div>
+          <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-16">{{ p.exercises.length }} 个动作 · {{ p.rounds }} 轮</div>
+          <div class="absolute left-3 bottom-2 z-1 text-[0.64rem] font-bold tracking-[0.02em] text-ink opacity-[0.9] py-0.5 px-2 rounded-full bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.07)] shadow-[0_2px_6px_rgba(0,0,0,0.2)] pointer-events-none">{{ fmtMin(presetTotalSec(p)) }}</div>
         </div>
       </div>
-      <div v-else class="empty-hint">暂无系统预设</div>
+      <div v-else class="text-center p-6 opacity-[0.4] text-[0.85rem]">暂无系统预设</div>
     </div>
 
-    <div class="preset-group">
-      <div class="preset-group-title">我的预设</div>
-      <div class="preset-grid">
+    <div class="mb-5 last:mb-0">
+      <div class="text-[0.72rem] font-bold tracking-[0.06em] uppercase text-ink-2 mb-2.5">我的预设</div>
+      <div class="grid grid-cols-3 gap-2.5 max-[480px]:grid-cols-2">
         <div
           v-for="p in customPresets"
           :key="p.key"
-          class="preset-card"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 pb-9 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-200 group hover:-translate-y-0.75 hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5"
           role="button"
           tabindex="0"
           @click="router.push('/preset/' + p.key)"
           @keydown.enter="router.push('/preset/' + p.key)"
         >
-          <Icon :icon="p.icon || 'mdi:tune-variant'" class="preset-icon" />
+          <Icon :icon="p.icon || 'mdi:tune-variant'" class="absolute right-4 top-1/2 -translate-y-1/2 size-10 text-accent-2 opacity-[0.35] drop-shadow-[0_0_8px_rgba(124,111,247,0.6)] pointer-events-none transition-[opacity,filter] duration-250 group-hover:opacity-[0.55] group-hover:drop-shadow-[0_0_10px_rgba(124,111,247,0.75)] group-hover:[&_path]:fill-[url(#preset-icon-grad)]" />
           <button
             type="button"
-            class="preset-del"
+            class="absolute top-1.5 right-1.5 text-[1.05rem] leading-none text-ink-2 opacity-[0.35] p-0.5 rounded-md inline-flex bg-transparent border-none cursor-pointer font-[inherit] z-1 hover:opacity-100 hover:text-danger"
             title="删除此预设"
             aria-label="删除预设"
             @click.stop="askDelete(p)"
           >
             <Icon icon="mdi:close-circle" />
           </button>
-          <div class="preset-name">{{ p.name }}</div>
-          <div class="preset-meta">{{ p.exercises.length }} 个动作 · {{ p.rounds }} 轮</div>
-          <div class="preset-time">{{ fmtMin(presetTotalSec(p)) }}</div>
+          <div class="relative flex items-center gap-0.75 mb-1 text-[1rem] font-extrabold">{{ p.name }}</div>
+          <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-16">{{ p.exercises.length }} 个动作 · {{ p.rounds }} 轮</div>
+          <div class="absolute left-3 bottom-2 z-1 text-[0.64rem] font-bold tracking-[0.02em] text-ink opacity-[0.9] py-0.5 px-2 rounded-full bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.07)] shadow-[0_2px_6px_rgba(0,0,0,0.2)] pointer-events-none">{{ fmtMin(presetTotalSec(p)) }}</div>
         </div>
 
         <div
-          class="preset-card preset-new"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 cursor-pointer font-[inherit] transition-[transform,border-color,box-shadow] duration-200 group hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5 border-dashed items-center justify-center text-center text-ink-2 shadow-none pb-5.5 hover:text-ink hover:border-transparent hover:translate-y-0 hover:[background:linear-gradient(var(--surface),var(--surface))_padding-box,var(--grad-main)_border-box]"
           role="button"
           tabindex="0"
           @click="router.push('/new')"
           @keydown.enter="router.push('/new')"
         >
-          <div class="preset-name">新建预设</div>
-          <div class="preset-meta">定制你的训练</div>
+          <div class="relative flex items-center gap-0.75 mb-1 text-[1rem] font-extrabold">新建预设</div>
+          <div class="relative text-[0.7rem] opacity-[0.6] text-shadow-[0_1px_4px_rgba(0,0,0,0.5)] pr-0">定制你的训练</div>
         </div>
       </div>
     </div>
 
     <div
       v-if="pendingDelete"
-      class="modal-overlay"
+      class="fixed inset-0 z-200 flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="del-title"
       @click.self="pendingDelete = null"
     >
-      <div class="modal-box">
-        <div id="del-title" class="modal-title">
+      <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-6 min-w-75 max-w-[90vw] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] animate-[modal-in_0.22s_ease]">
+        <div id="del-title" class="font-bold mb-2 flex items-center gap-1.5">
           <Icon icon="mdi:delete-alert" /> 删除预设
         </div>
-        <p class="modal-desc">确定删除「{{ pendingDelete.name }}」？此操作不可撤销。</p>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-ghost btn-sm" @click="pendingDelete = null">取消</button>
-          <button ref="confirmBtn" type="button" class="btn btn-danger btn-sm" @click="confirmDelete">删除</button>
+        <p class="text-[0.78rem] opacity-[0.55] mb-3 leading-relaxed">确定删除「{{ pendingDelete.name }}」？此操作不可撤销。</p>
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
+            @click="pendingDelete = null"
+          >取消</button>
+          <button
+            ref="confirmBtn"
+            type="button"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-danger bg-[linear-gradient(135deg,#f87171,#dc2626)] text-white shadow-[0_8px_20px_-8px_rgba(239,68,68,0.55),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-[1.08] px-3 py-1.25 text-[0.78rem]"
+            @click="confirmDelete"
+          >删除</button>
         </div>
       </div>
     </div>
 
     <div
       v-if="pendingBackup"
-      class="modal-overlay"
+      class="fixed inset-0 z-200 flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="backup-title"
       @click.self="pendingBackup = null"
     >
-      <div class="modal-box">
-        <div id="backup-title" class="modal-title">
+      <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-6 min-w-75 max-w-[90vw] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] animate-[modal-in_0.22s_ease]">
+        <div id="backup-title" class="font-bold mb-2 flex items-center gap-1.5">
           <Icon icon="mdi:export" /> 保存备份
         </div>
-        <p class="modal-desc">将保存以下 {{ pendingBackup.names.length }} 个预设：</p>
-        <ul class="modal-list">
+        <p class="text-[0.78rem] opacity-[0.55] mb-3 leading-relaxed">将保存以下 {{ pendingBackup.names.length }} 个预设：</p>
+        <ul class="list-none m-0 mb-3 px-2.5 py-2 max-h-45 overflow-y-auto bg-[rgba(255,255,255,0.04)] border border-line rounded-lg grid gap-1 text-[0.82rem]">
           <li v-for="(name, i) in pendingBackup.names" :key="i">{{ name }}</li>
         </ul>
-        <p class="modal-desc">
-          文件名：<b class="export-filename">{{ pendingBackup.filename }}</b>
+        <p class="text-[0.78rem] opacity-[0.55] mb-3 leading-relaxed">
+          文件名：<b class="text-accent-2 font-bold">{{ pendingBackup.filename }}</b>
         </p>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-ghost btn-sm" @click="pendingBackup = null">取消</button>
-          <button ref="backupConfirmBtn" type="button" class="btn btn-primary btn-sm" @click="confirmBackup">
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright px-3 py-1.25 text-[0.78rem]"
+            @click="pendingBackup = null"
+          >取消</button>
+          <button
+            ref="backupConfirmBtn"
+            type="button"
+            class="inline-flex items-center gap-1.25 rounded-control font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-3 py-1.25 text-[0.78rem]"
+            @click="confirmBackup"
+          >
             保存备份
           </button>
         </div>

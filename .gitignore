@@ -2,3 +2,4 @@ node_modules/
 .visual/
 dist/
 .DS_Store
+.visual/
