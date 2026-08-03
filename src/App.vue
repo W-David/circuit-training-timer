@@ -1,14 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useWorkout } from './composables/useWorkout.js'
+import SummaryView from './components/SummaryView.vue'
+import TimerView from './components/TimerView.vue'
+import { useActions } from './composables/useActions.js'
 import { useAudio } from './composables/useAudio.js'
 import { useSettings } from './composables/useSettings.js'
 import { useToast } from './composables/useToast.js'
-import { useActions } from './composables/useActions.js'
-import TimerView from './components/TimerView.vue'
-import SummaryView from './components/SummaryView.vue'
+import { useWorkout } from './composables/useWorkout.js'
 
 const router = useRouter()
 const workout = useWorkout()
@@ -157,8 +157,8 @@ onUnmounted(() => {
 
   <div
     :class="[
-      'fixed top-5 left-1/2 z-[999] bg-[image:var(--grad-main)] bg-accent text-white px-5 py-2 rounded-full text-[0.82rem] font-semibold opacity-0 pointer-events-none shadow-[0_10px_28px_-8px_rgba(124,111,247,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] transition-[opacity,transform] duration-300 -translate-x-1/2 -translate-y-[10px]',
-      toastText ? 'opacity-100 -translate-y-0' : '',
+      'fixed top-5 left-1/2 z-999 bg-(image:--grad-main) bg-accent text-white px-5 py-2 rounded-full text-[0.82rem] font-semibold opacity-0 pointer-events-none shadow-[0_10px_28px_-8px_rgba(124,111,247,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] transition-[opacity,transform] duration-300 -translate-x-1/2 -translate-y-2.5',
+      toastText ? 'opacity-100 translate-y-0' : '',
     ]"
   >{{ toastText }}</div>
 
