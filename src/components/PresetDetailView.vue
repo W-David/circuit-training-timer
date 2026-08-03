@@ -54,9 +54,9 @@ function confirmFork() {
       <Icon icon="mdi:arrow-left" />返回首页
     </button>
 
-    <section v-if="preset" class="bg-surface border border-line rounded-card p-4 mb-[18px]">
+    <section v-if="preset" class="bg-surface border border-line rounded-card p-4 mb-4.5">
       <div class="flex items-center gap-3 mb-3.5 flex-wrap">
-        <div class="size-10 rounded-[12px] shrink-0 bg-[image:var(--grad-main)] bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]">
+        <div class="size-10 rounded-xl shrink-0 bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]">
           <Icon :icon="preset.icon || 'mdi:tune-variant'" />
         </div>
         <div class="flex-1 min-w-0">
@@ -89,9 +89,9 @@ function confirmFork() {
       <div class="flex flex-col gap-0.5 mt-0.5 mb-1">
         <div
           v-if="preset.warmupEnabled"
-          class="flex items-center gap-2 px-2 py-[5px] rounded-lg text-[0.82rem] odd:bg-[linear-gradient(90deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))]"
+          class="flex items-center gap-2 px-2 py-1.25 rounded-lg text-[0.82rem] odd:bg-[linear-gradient(90deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))]"
         >
-          <span class="size-[18px] rounded-full bg-accent! text-white! text-[0.65rem] inline-flex items-center justify-center shrink-0">热</span>
+          <span class="size-4.5 rounded-full bg-accent! text-white! text-[0.65rem] inline-flex items-center justify-center shrink-0">热</span>
           <span class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-semibold">热身</span>
           <span class="shrink-0 tabular-nums text-[0.75rem] opacity-[0.75]">
             <b class="text-accent-2">{{ preset.warmupSeconds }}s</b>
@@ -100,9 +100,9 @@ function confirmFork() {
         <div
           v-for="(ex, i) in preset.exercises"
           :key="i"
-          class="flex items-center gap-2 px-2 py-[5px] rounded-lg text-[0.82rem] odd:bg-[linear-gradient(90deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))]"
+          class="flex items-center gap-2 px-2 py-1.25 rounded-lg text-[0.82rem] odd:bg-[linear-gradient(90deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))]"
         >
-          <span class="size-[18px] rounded-full bg-surface-2 text-ink-2 text-[0.65rem] inline-flex items-center justify-center shrink-0">{{ i + 1 }}</span>
+          <span class="size-4.5 rounded-full bg-surface-2 text-ink-2 text-[0.65rem] inline-flex items-center justify-center shrink-0">{{ i + 1 }}</span>
           <span class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-semibold">{{ ex.name || '动作' + (i + 1) }}</span>
           <span class="shrink-0 tabular-nums text-[0.75rem] opacity-[0.75]">
             <b class="text-work">{{ ex.work }}s</b>
@@ -127,13 +127,13 @@ function confirmFork() {
 
     <div
       v-if="showForkModal"
-      class="fixed inset-0 z-[200] flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
+      class="fixed inset-0 z-[200px] flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="fork-title"
       @click.self="showForkModal = false"
     >
-      <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-6 min-w-[300px] max-w-[90vw] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] animate-[modal-in_0.22s_ease]">
+      <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-6 min-w-75 max-w-[90vw] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] animate-[modal-in_0.22s_ease]">
         <div id="fork-title" class="font-bold mb-2 flex items-center gap-1.5">
           <Icon icon="mdi:content-copy" /> 另存为新预设
         </div>
