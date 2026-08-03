@@ -56,8 +56,8 @@ watch(
   justify-content: center;
   opacity: 0.9;
   font-weight: 700;
-  font-size: 0.85em;
-  width: 0.35em;
+  font-size: 1em;
+  width: 0.5em;
   height: 1em;
 }
 
@@ -70,7 +70,7 @@ watch(
   vertical-align: top;
   font-weight: 900;
   line-height: 1;
-  font-size: inherit;
+  font-size: 1.2em;
   border-radius: 6px;
   box-shadow:
     0 3px 8px rgba(0, 0, 0, 0.5),
@@ -90,7 +90,7 @@ watch(
   align-self: start;
   align-items: flex-start;
   background: linear-gradient(180deg, #2a3040 0%, #1e2430 100%);
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px 8px 0 0;
   box-shadow:
     inset 0 0.5px 0 rgba(255, 255, 255, 0.06),
     inset 0 -1px 0 rgba(0, 0, 0, 0.5);
@@ -101,7 +101,7 @@ watch(
   align-self: end;
   align-items: flex-end;
   background: linear-gradient(180deg, #161b26 0%, #0e1219 100%);
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 8px 8px;
   box-shadow:
     inset 0 0.5px 0 rgba(255, 255, 255, 0.04),
     inset 0 -1px 0 rgba(0, 0, 0, 0.3);
