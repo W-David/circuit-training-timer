@@ -1,19 +1,19 @@
 <script setup>
 import { Icon } from '@iconify/vue'
-import { reactive, ref, watch, nextTick } from 'vue'
+import { nextTick, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import NumInput from './NumInput.vue'
+import { useActions } from '../composables/useActions.js'
 import { useEscClose } from '../composables/useEscClose.js'
 import { usePresets } from '../composables/usePresets.js'
 import { useToast } from '../composables/useToast.js'
-import { useActions } from '../composables/useActions.js'
 import defaults from '../data/defaults.json'
 import {
   PRESET_ICONS,
-  normalizePreset,
   cloneConfig,
+  normalizePreset,
 } from '../utils/presetFormat.js'
 import { BTN_GHOST, BTN_PRIMARY, BTN_SM, CARD } from '../utils/twClasses.js'
+import NumInput from './NumInput.vue'
 
 const actions = useActions()
 const presets = usePresets()
@@ -288,7 +288,7 @@ function startNow() {
     <div :class="[CARD, 'p-4!']">
       <div class="flex items-center gap-2.5 max-[480px]:flex-wrap">
         <div
-          class="size-10 rounded-[12px] shrink-0 bg-[image:var(--grad-main)] bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]"
+          class="size-10 rounded-xl shrink-0 bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)]"
           aria-hidden="true"
         >
           <Icon :icon="draft.icon || 'mdi:tune-variant'" />
@@ -297,7 +297,7 @@ function startNow() {
           id="preset-name-input"
           v-model="draft.name"
           type="text"
-          class="flex-[1_1_auto] min-w-0 h-10! box-border text-[0.95rem]! font-bold! leading-[1.2]! px-3! py-0! bg-surface-2! border! border-line! rounded-[10px]! text-ink! font-[inherit] focus:border-accent! focus:shadow-[0_0_0_3px_rgba(124,111,247,0.18)]! placeholder:font-semibold placeholder:opacity-40 max-[480px]:flex-[1_1_calc(100%_-_2.5rem_-_10px)]"
+          class="flex-[1_1_auto] min-w-0 h-10! box-border text-[0.95rem]! font-bold! leading-[1.2]! px-3! py-0! bg-surface-2! border! border-line! rounded-[10px]! text-ink! font-[inherit] focus:border-accent! focus:shadow-[0_0_0_3px_rgba(124,111,247,0.18)]! placeholder:font-semibold placeholder:opacity-40 max-[480px]:flex-[1_1_calc(100%-2.5rem-10px)]"
           :placeholder="editKey ? '预设名称' : '新预设名称'"
           aria-label="预设名称"
           @focus="$event.target.select()"
@@ -484,13 +484,13 @@ function startNow() {
 
     <div
       v-if="showExportModal"
-      class="fixed inset-0 z-[200] flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
+      class="fixed inset-0 z-200 flex items-center justify-center bg-[rgba(5,7,12,0.66)] backdrop-blur-[6px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="export-title"
       @click.self="showExportModal = false"
     >
-      <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-6 min-w-[300px] max-w-[90vw] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] animate-[modal-in_0.22s_ease]">
+      <div class="bg-[linear-gradient(180deg,var(--surface2)_0%,var(--surface)_100%)] border border-line-bright rounded-card p-6 min-w-75 max-w-[90vw] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] animate-[modal-in_0.22s_ease]">
         <div id="export-title" class="font-bold mb-2 flex items-center gap-1.5">
           <Icon icon="mdi:upload" /> 导出预设
         </div>

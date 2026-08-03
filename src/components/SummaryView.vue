@@ -1,6 +1,6 @@
 <script setup>
-import { Icon } from '@iconify/vue'
-import { BTN_GHOST, BTN_PRIMARY } from '../utils/twClasses.js'
+import { Icon } from '@iconify/vue';
+import { BTN_GHOST, BTN_PRIMARY } from '../utils/twClasses.js';
 
 defineProps({
   totalElapsed: Number,
@@ -24,7 +24,7 @@ defineEmits(['restart', 'home'])
     <div class="text-[0.85rem] opacity-[0.5] mt-1">
       总用时 {{ fmt(totalElapsed) }} · {{ rounds }} 轮 · {{ exerciseCount }} 个动作
     </div>
-    <div class="flex gap-2.5 justify-center flex-wrap mt-[18px]">
+    <div class="flex gap-2.5 justify-center flex-wrap mt-4.5">
       <button :class="BTN_PRIMARY" @click="$emit('restart')">
         <Icon icon="mdi:refresh" />再来一轮
       </button>

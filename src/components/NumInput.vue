@@ -62,7 +62,7 @@ function adjust(delta) {
       @click="adjust(-step)"
     >−</button>
     <input
-      class="w-[38px] h-full border-none bg-transparent text-ink text-[0.85rem] text-center font-[inherit] outline-none p-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
+      class="w-9.5 h-full border-none bg-transparent text-ink text-[0.85rem] text-center font-[inherit] outline-none p-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
       type="number"
       :value="inputVal"
       :min="min"

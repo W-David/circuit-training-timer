@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
-import FlipClock from './FlipClock.vue'
+import { computed } from 'vue'
 import { BTN_GHOST, BTN_LG, BTN_PRIMARY } from '../utils/twClasses.js'
+import FlipClock from './FlipClock.vue'
 
 const props = defineProps({
   remaining: Number,
