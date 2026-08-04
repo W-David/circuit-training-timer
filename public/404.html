@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d1017" />
+  <title>404 · 循环训练计时器</title>
+  <style>
+    :root {
+      --bg: #0a0d15;
+      --text: #e9ecf7;
+      --text2: #7f87a3;
+      --grad: linear-gradient(135deg, #22d3ee 0%, #7c6ff7 55%, #a855f7 100%);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html,
+    body {
+      height: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* 与主站一致的环境光 */
+    .glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(60% 50% at 50% 0%, rgba(34, 211, 238, 0.14), transparent 65%),
+        radial-gradient(55% 45% at 85% 100%, rgba(168, 85, 247, 0.12), transparent 65%),
+        radial-gradient(45% 40% at 10% 100%, rgba(124, 111, 247, 0.1), transparent 60%);
+    }
+    .wrap {
+      position: relative;
+      text-align: center;
+      padding: 0 24px;
+    }
+    .code {
+      font-size: clamp(5rem, 20vw, 9rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 28px rgba(124, 111, 247, 0.35));
+      user-select: none;
+    }
+    h1 {
+      margin-top: 18px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    p {
+      margin-top: 8px;
+      color: var(--text2);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 26px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: var(--grad);
+      box-shadow:
+        0 8px 24px -8px rgba(124, 111, 247, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      transition:
+        transform 0.2s,
+        filter 0.2s;
+    }
+    .btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="code" aria-hidden="true">404</div>
+    <h1>页面走丢了</h1>
+    <p>你访问的页面不存在，可能已被移动或删除。<br />回到首页，继续今天的训练吧。</p>
+    <a class="btn" href="./">返回首页</a>
+  </div>
+</body>
+</html>

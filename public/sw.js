@@ -1,5 +1,13 @@
-const CACHE = 'ct3-v2'
-const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg']
+// 构建时由 vite 注入产物指纹，保证每次发布 sw.js 字节都会变化，
+// 浏览器才能检测到新版本并触发更新提示
+const BUILD_ID = '__BUILD_ID__'
+const CACHE = 'ct3-v4'
+// 以 SW 作用域为基准解析路径，兼容根路径与子路径（GitHub Pages）部署
+const scope = self.registration.scope
+const indexUrl = new URL('index.html', scope).href
+const APP_SHELL = ['index.html', 'manifest.webmanifest', 'icon.svg'].map(
+  (p) => new URL(p, scope).href,
+)
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -26,10 +34,10 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((res) => {
           const clone = res.clone()
-          caches.open(CACHE).then((cache) => cache.put('/index.html', clone))
+          caches.open(CACHE).then((cache) => cache.put(indexUrl, clone))
           return res
         })
-        .catch(() => caches.match('/index.html')),
+        .catch(() => caches.match(indexUrl)),
     )
     return
   }

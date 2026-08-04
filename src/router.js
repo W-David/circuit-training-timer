@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from './pages/HomeView.vue'
 import PresetDetailView from './pages/PresetDetailView.vue'
 import PresetEditView from './pages/PresetEditView.vue'
@@ -7,7 +7,8 @@ import SummaryView from './pages/SummaryView.vue'
 import { useWorkout } from './composables/useWorkout.js'
 
 const router = createRouter({
-  history: createWebHistory(),
+  // hash 模式：GitHub Pages 等纯静态托管无需 SPA 回退即可刷新/分享深层链接
+  history: createWebHashHistory(),
   routes: [
     { path: '/', name: 'home', component: HomeView },
     { path: '/preset/:type/:key', name: 'preset-detail', component: PresetDetailView },

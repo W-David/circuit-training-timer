@@ -6,6 +6,7 @@ import { useActions } from './composables/useActions.js'
 import { useSettings } from './composables/useSettings.js'
 import { useToast } from './composables/useToast.js'
 import { useWorkout } from './composables/useWorkout.js'
+import { SW_UPDATE_EVENT } from './plugins/serviceWorker.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,6 +16,16 @@ const actions = useActions()
 const { toast, text: toastText } = useToast()
 
 const isFullscreen = ref(false)
+const updateReady = ref(false)
+
+// --- 版本更新提示 ---
+function onUpdateReady() {
+  updateReady.value = true
+}
+
+function reloadToUpdate() {
+  location.reload()
+}
 
 // --- Fullscreen ---
 function applyFsClass() {
@@ -102,6 +113,7 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', onFS)
   document.addEventListener('keydown', onKey)
   document.addEventListener('visibilitychange', onVis)
+  window.addEventListener(SW_UPDATE_EVENT, onUpdateReady)
   // 开发调试：?demo=timer / ?demo=summary 直达计时/总结视图（仅 dev 构建生效，
   // 供 scripts/visual-snapshot.mjs 交互视图回归使用）
   if (import.meta.env.DEV) {
@@ -128,6 +140,7 @@ onUnmounted(() => {
   document.removeEventListener('fullscreenchange', onFS)
   document.removeEventListener('keydown', onKey)
   document.removeEventListener('visibilitychange', onVis)
+  window.removeEventListener(SW_UPDATE_EVENT, onUpdateReady)
   releaseWakeLock()
 })
 </script>
@@ -144,6 +157,36 @@ onUnmounted(() => {
       v-if="toastText"
       class="toast fixed top-5 left-1/2 z-999 bg-(image:--grad-main) bg-accent text-white px-5 py-2 rounded-full text-[0.82rem] font-semibold pointer-events-none shadow-[0_10px_28px_-8px_rgba(124,111,247,0.6),inset_0_1px_0_rgba(255,255,255,0.25)]"
     >{{ toastText }}</div>
+  </Transition>
+
+  <Transition name="update">
+    <div
+      v-if="updateReady"
+      class="fixed inset-x-0 bottom-6 z-999 flex justify-center px-4 pointer-events-none"
+      role="status"
+    >
+      <div
+        class="pointer-events-auto flex max-w-[min(92vw,26rem)] items-center gap-3 rounded-2xl border border-line bg-surface/90 px-3 py-2.5 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.55)] backdrop-blur-md"
+      >
+        <Icon icon="mdi:update" class="size-5 shrink-0 text-accent" />
+        <div class="min-w-0 flex-1 leading-tight">
+          <p class="text-[0.82rem] font-semibold text-ink truncate">发现新版本</p>
+          <p class="text-xs text-ink-2 truncate">刷新后即可体验最新内容</p>
+        </div>
+        <button
+          class="shrink-0 rounded-full bg-(image:--grad-main) bg-accent px-3 py-1.5 text-xs font-semibold text-white cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-[0_6px_18px_-6px_rgba(124,111,247,0.7)] active:scale-95"
+          @click="reloadToUpdate"
+        >立即刷新</button>
+        <button
+          class="shrink-0 grid size-7 place-items-center rounded-full text-ink-2 cursor-pointer transition-colors duration-200 hover:bg-white/10 hover:text-ink"
+          title="关闭"
+          aria-label="关闭更新提示"
+          @click="updateReady = false"
+        >
+          <Icon icon="mdi:close" class="size-4" />
+        </button>
+      </div>
+    </div>
   </Transition>
 
   <div class="fixed top-4 right-4 z-50 flex gap-2" v-show="route.path === '/train' || route.path === '/summary'">
@@ -236,5 +279,19 @@ onUnmounted(() => {
 .toast-leave-to {
   opacity: 0;
   transform: translate(-50%, 0) scale(0.94);
+}
+
+/* 版本更新提示：缩放 + 透明度过渡（无位移） */
+.update-enter-active,
+.update-leave-active {
+  transition:
+    opacity 0.25s ease,
+    scale 0.25s ease;
+}
+
+.update-enter-from,
+.update-leave-to {
+  opacity: 0;
+  scale: 0.96;
 }
 </style>
