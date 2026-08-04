@@ -153,7 +153,7 @@ function confirmBackup() {
         />
 
         <div
-          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 cursor-pointer font-[inherit] transition-[transform,border-color,box-shadow] duration-200 group hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5 border-dashed items-center justify-center text-center text-ink-2 shadow-none pb-5.5 hover:text-ink hover:border-transparent hover:translate-y-0 hover:[background:linear-gradient(var(--surface),var(--surface))_padding-box,var(--grad-main)_border-box]"
+          class="relative overflow-hidden flex flex-col gap-0.75 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5.5 px-4 cursor-pointer font-[inherit] transition-[translate,border-color,box-shadow] duration-200 group hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)] max-[480px]:px-3 max-[480px]:pt-3 max-[480px]:pb-2.5 border-dashed items-center justify-center text-center text-ink-2 shadow-none pb-5.5 hover:text-ink hover:border-transparent hover:translate-y-0 hover:[background:linear-gradient(var(--surface),var(--surface))_padding-box,var(--grad-main)_border-box]"
           role="button"
           tabindex="0"
           @click="router.push('/new')"

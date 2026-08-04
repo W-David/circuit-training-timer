@@ -224,7 +224,7 @@ function startNow() {
         <div class="relative shrink-0">
           <div
             type="button"
-            class="relative size-10 rounded-xl bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] cursor-pointer transition-[filter,transform] duration-200 hover:brightness-110 active:scale-95"
+            class="relative size-10 rounded-xl bg-(image:--grad-main) bg-accent inline-flex items-center justify-center text-white text-[1.2rem] shadow-[0_8px_20px_-6px_rgba(124,111,247,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] cursor-pointer transition-[filter,scale] duration-200 hover:brightness-110 active:scale-95"
             @click="showIconPicker = !showIconPicker"
           >
             <Icon :icon="draft.icon || 'mdi:tune-variant'" />

@@ -20,7 +20,7 @@ function open() {
 
 <template>
   <div
-    class="relative overflow-hidden flex flex-col gap-1 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5 px-4 pb-10 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.75 hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)]"
+    class="relative overflow-hidden flex flex-col gap-1 bg-[linear-gradient(135deg,#2b3452_0%,#1a2136_45%,#0c0f1a_100%)] border border-line rounded-card pt-5 px-4 pb-10 cursor-pointer text-left font-[inherit] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_20px_-12px_rgba(0,0,0,0.6)] transition-[translate,border-color,box-shadow] duration-300 hover:-translate-y-0.75 hover:border-[rgba(124,111,247,0.55)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_16px_32px_-14px_rgba(0,0,0,0.75),0_0_0_1px_rgba(124,111,247,0.12)]"
     role="button"
     tabindex="0"
     @click="open"
