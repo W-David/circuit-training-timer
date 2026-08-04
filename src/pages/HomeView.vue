@@ -7,7 +7,7 @@ import { useEscClose } from '../composables/useEscClose.js'
 import { usePresets } from '../composables/usePresets.js'
 import { useToast } from '../composables/useToast.js'
 import { backupFileName } from '../utils/backup.js'
-import PresetCard from './PresetCard.vue'
+import PresetCard from '../components/PresetCard.vue'
 
 const presets = usePresets()
 const actions = useActions()

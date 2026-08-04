@@ -66,12 +66,15 @@ function confirmFork() {
           <div class="text-[1.15rem] font-extrabold tracking-[-0.01em]">
             {{ preset.name }}
           </div>
-          <div class="flex flex-wrap gap-x-2.5 gap-y-1 mt-1 text-[0.72rem] opacity-[0.55]">
-            <span>{{ preset.exercises.length }} 个动作</span>
-            <span>{{ preset.rounds }} 轮</span>
-            <span v-if="preset.restBetweenRounds > 0">轮间休息 {{ preset.restBetweenRounds }} 秒</span>
-            <span v-if="preset.warmupEnabled">热身 {{ preset.warmupSeconds }} 秒</span>
-            <span>约 {{ fmtMin(presetTotalSec(preset)) }}</span>
+          <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-1 text-[0.72rem]">
+            <span class="opacity-[0.55]">{{ preset.exercises.length }} 个动作</span>
+            <span class="opacity-[0.55]">{{ preset.rounds }} 轮</span>
+            <span v-if="preset.restBetweenRounds > 0" class="opacity-[0.55]">
+              轮间休息 {{ preset.restBetweenRounds }} 秒
+            </span>
+            <span class="text-[0.64rem] font-bold tracking-[0.02em] text-ink opacity-90 py-0.5 px-2 rounded-full bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.07)] shadow-[0_2px_6px_rgba(0,0,0,0.2)]">
+              {{ fmtMin(presetTotalSec(preset)) }}
+            </span>
           </div>
         </div>
         <div class="flex gap-1.5 flex-wrap">

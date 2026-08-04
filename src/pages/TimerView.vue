@@ -1,38 +1,41 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
-import FlipClock from './FlipClock.vue'
+import FlipClock from '../components/FlipClock.vue'
+import { useActions } from '../composables/useActions.js'
+import { useWorkout } from '../composables/useWorkout.js'
 
-const props = defineProps({
-  remaining: Number,
-  paused: Boolean,
-  displayName: String,
-  phaseLabel: String,
-  phaseCls: String,
-  currentRound: Number,
-  rounds: Number,
-  currentStepType: String,
-  nextName: String,
-  nextSec: Number,
-  progressDots: Array,
-})
+const workout = useWorkout()
+const actions = useActions()
 
-const emit = defineEmits(['pause', 'skip', 'stop'])
+const remaining = computed(() => workout.remaining.value)
+const paused = computed(() => workout.paused.value)
+const displayName = computed(() => workout.displayName.value)
+const phaseLabel = computed(() => workout.phaseLabel.value)
+const phaseCls = computed(() => workout.phaseCls.value)
+const currentRound = computed(() => workout.currentRound.value)
+const rounds = computed(() => workout.rounds.value)
+const currentStepType = computed(() => workout.currentStepType.value)
+const nextName = computed(() => workout.nextName.value)
+const nextSec = computed(() => workout.nextSec.value)
+const progressDots = computed(() => workout.progressDots.value)
 
-function press(action, e) {
+function press(action) {
   // 点击后立刻失焦，避免按钮保持焦点时按空格触发二次点击
-  e.currentTarget.blur()
-  emit(action)
+  document.activeElement?.blur()
+  if (action === 'pause') actions.pause()
+  else if (action === 'skip') actions.skip()
+  else if (action === 'stop') actions.stopWorkout()
 }
 
 const phaseIcon = computed(() => {
-  if (props.currentStepType === 'warmup') return 'mdi:fire'
-  if (props.currentStepType === 'roundRest') return 'mdi:restart'
-  if (props.currentStepType === 'rest') return 'mdi:coffee-outline'
+  if (workout.currentStepType.value === 'warmup') return 'mdi:fire'
+  if (workout.currentStepType.value === 'roundRest') return 'mdi:restart'
+  if (workout.currentStepType.value === 'rest') return 'mdi:coffee-outline'
   return 'mdi:dumbbell'
 })
 
-const isWork = computed(() => props.currentStepType === 'work')
+const isWork = computed(() => workout.currentStepType.value === 'work')
 
 </script>
 
@@ -86,7 +89,7 @@ const isWork = computed(() => props.currentStepType === 'work')
       <button
         type="button"
         class="inline-flex items-center gap-1.25 font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110 px-8 py-3.5 text-[1rem] rounded-card"
-        @click="press('pause', $event)"
+        @click="press('pause')"
       >
         <Icon :icon="paused ? 'mdi:play' : 'mdi:pause'" />
         {{ paused ? '继续' : '暂停' }}
@@ -94,14 +97,14 @@ const isWork = computed(() => props.currentStepType === 'work')
       <button
         type="button"
         class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
-        @click="press('skip', $event)"
+        @click="press('skip')"
       >
         <Icon icon="mdi:skip-next" />跳过
       </button>
       <button
         type="button"
         class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
-        @click="press('stop', $event)"
+        @click="press('stop')"
       >
         <Icon icon="mdi:stop" />结束
       </button>

@@ -12,7 +12,7 @@ import {
   cloneConfig,
   normalizePreset,
 } from '../utils/presetFormat.js'
-import NumInput from './NumInput.vue'
+import NumInput from '../components/NumInput.vue'
 
 const actions = useActions()
 const presets = usePresets()

@@ -1,14 +1,15 @@
 <script setup>
-import { Icon } from '@iconify/vue';
+import { Icon } from '@iconify/vue'
+import { computed } from 'vue'
+import { useActions } from '../composables/useActions.js'
+import { useWorkout } from '../composables/useWorkout.js'
 
-defineProps({
-  totalElapsed: Number,
-  rounds: Number,
-  exerciseCount: Number,
-  fmt: Function,
-})
-
-defineEmits(['restart', 'home'])
+const workout = useWorkout()
+const actions = useActions()
+const totalElapsed = computed(() => workout.totalElapsed.value)
+const rounds = computed(() => workout.rounds.value)
+const exerciseCount = computed(() => workout.exercises.value.length)
+const fmt = workout.fmt
 </script>
 
 <template>
@@ -26,13 +27,13 @@ defineEmits(['restart', 'home'])
     <div class="flex gap-2.5 justify-center flex-wrap mt-4.5">
       <button
         class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border-none bg-accent bg-(image:--grad-main) text-white shadow-[var(--glow-main),inset_0_1px_0_rgba(255,255,255,0.22)] hover:brightness-110"
-        @click="$emit('restart')"
+        @click="actions.restart()"
       >
         <Icon icon="mdi:refresh" />再来一轮
       </button>
       <button
         class="inline-flex items-center gap-1.25 px-4 py-2 rounded-control text-[0.85rem] font-semibold font-[inherit] cursor-pointer transition-all duration-200 active:scale-[0.97] border bg-transparent border-line text-ink hover:bg-[rgba(255,255,255,0.04)] hover:border-line-bright"
-        @click="$emit('home')"
+        @click="actions.home()"
       >
         <Icon icon="mdi:home" />返回首页
       </button>

@@ -22,6 +22,8 @@ No lint/typecheck scripts. CI: `.github/workflows/ci.yml` (test + build on push/
 | `src/App.vue` | Shell: composables, timer/summary overlay, fullscreen/wake-lock/keyboard/mute |
 | `src/router.js` | Editor routes (`createWebHistory`) |
 | `src/composables/` | Workout engine, presets, audio, settings, toast, actions, storage, `useEscClose` |
+| `src/pages/` | 页面级路由组件：首页/详情/编辑/训练/总结 |
+| `src/components/` | 通用组件：`PresetCard`、`NumInput`、`FlipClock`、`FlipDigit` |
 | `src/utils/schedule.js` | Pure `buildSchedule` |
 | `src/utils/presetFormat.js` | Normalize / import parse / duration helpers |
 | `src/utils/time.js` | `formatMMSS` (shared by `FlipClock` + `workout.fmt`) |
@@ -33,7 +35,11 @@ No lint/typecheck scripts. CI: `.github/workflows/ci.yml` (test + build on push/
 
 ## Architecture (easy to break)
 
-- **View modes** on `workout.view`: `'editor' | 'timer' | 'summary'`. Router renders only when `view === 'editor'`. Timer/summary are siblings in `App.vue`, not routes.
+- **View modes** on `workout.view`: `'editor' | 'timer' | 'summary'`，与路由同步：
+  `view` 变为 `timer`/`summary` 时 `App.vue` 自动跳转 `/train`、`/summary`；
+  `router.js` 守卫禁止无训练会话时直接进入这两个页面。所有页面（含训练/总结）
+  都是独立路由，`App.vue` 用 vue-router 官方
+  `<RouterView v-slot>` + `<Transition name="page">` 做页面过渡。
 - **Edit isolation**: `PresetEditView` keeps a **local `draft`**. It must not call `workout.loadPreset` on open (`useWorkout` no longer exposes it). Only `actions.startConfig(draft)` / `savePreset` commit. New-draft autosave → `ct3-new-draft` (not the old `ct3-config`).
 - **另存为 ≠ 编辑**: `forkPreset` immediately copies into custom presets (name modal on detail). Edit only opens `/edit/:key` for existing custom presets.
 - Cross-view state comes from module-level singleton composables (`usePresets`/`useSettings`/`useToast`/`useWorkout`), no provide/inject. `useActions()` assembles shared actions from those singletons.

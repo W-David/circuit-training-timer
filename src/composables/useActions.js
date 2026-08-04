@@ -13,6 +13,8 @@ export function useActions() {
   const presets = usePresets()
   const audio = useAudio(useSettings().settings)
   const { toast } = useToast()
+  // 训练开始前所在的页面路径，结束后返回
+  let returnTo = '/'
 
   function resolvePreset(key) {
     return presets.loadBuiltin(key) || presets.customPresets[key] || null
@@ -23,14 +25,44 @@ export function useActions() {
       const p = resolvePreset(key)
       if (!p) return
       audio.prime()
+      returnTo = router.currentRoute.value.fullPath
       const ok = workout.startWorkout(audio, p)
       if (!ok) toast('训练内容为空')
     },
     startConfig(cfg) {
       audio.prime()
+      returnTo = router.currentRoute.value.fullPath
       const ok = workout.startWorkout(audio, cfg)
       if (!ok) toast('训练内容为空')
       return ok
+    },
+    pause() {
+      workout.togglePause()
+      if (workout.paused.value) audio.cancel()
+    },
+    skip() {
+      workout.skip()
+    },
+    stopWorkout() {
+      workout.stop()
+      audio.cancel()
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {})
+      }
+      router.push(returnTo || '/')
+    },
+    restart() {
+      audio.prime()
+      const ok = workout.startWorkout(audio)
+      if (!ok) toast('训练内容为空')
+    },
+    home() {
+      workout.goHome()
+      audio.cancel()
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {})
+      }
+      router.push('/')
     },
     savePreset(name, config, key) {
       const k = presets.savePreset(name, config, key)

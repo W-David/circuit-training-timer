@@ -1,55 +1,20 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import SummaryView from './components/SummaryView.vue'
-import TimerView from './components/TimerView.vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useActions } from './composables/useActions.js'
-import { useAudio } from './composables/useAudio.js'
 import { useSettings } from './composables/useSettings.js'
 import { useToast } from './composables/useToast.js'
 import { useWorkout } from './composables/useWorkout.js'
 
 const router = useRouter()
+const route = useRoute()
 const workout = useWorkout()
 const { settings, toggleMute } = useSettings()
-const audio = useAudio(settings)
 const actions = useActions()
 const { toast, text: toastText } = useToast()
 
 const isFullscreen = ref(false)
-
-function handlePause() {
-  workout.togglePause()
-  if (workout.paused.value) audio.cancel()
-}
-
-function handleSkip() {
-  workout.skip()
-}
-
-function handleStop() {
-  workout.stop()
-  audio.cancel()
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(() => {})
-  }
-}
-
-function handleRestart() {
-  audio.prime()
-  const ok = workout.startWorkout(audio)
-  if (!ok) toast('训练内容为空')
-}
-
-function handleHome() {
-  workout.goHome()
-  audio.cancel()
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(() => {})
-  }
-  router.push('/')
-}
 
 // --- Fullscreen ---
 function applyFsClass() {
@@ -83,11 +48,11 @@ function onKey(e) {
   if (e.repeat) return
   if (e.code === 'Space') {
     e.preventDefault()
-    handlePause()
+    actions.pause()
   }
   if (e.code === 'KeyS' && e.ctrlKey) {
     e.preventDefault()
-    handleSkip()
+    actions.skip()
   }
   if (e.code === 'KeyF' && e.ctrlKey) {
     e.preventDefault()
@@ -119,10 +84,19 @@ function onVis() {
 }
 
 watch(workout.view, (v) => {
-  document.body.classList.toggle('timer-active', v === 'timer')
   if (v === 'timer') acquireWakeLock()
   else releaseWakeLock()
+  // 训练/总结视图路由化：状态切换时同步到对应页面
+  if (v === 'timer' && route.path !== '/train') router.push('/train')
+  else if (v === 'summary' && route.path !== '/summary') router.push('/summary')
 })
+
+watch(
+  () => route.path,
+  (p) => {
+    document.body.classList.toggle('timer-active', p === '/train')
+  },
+)
 
 onMounted(() => {
   document.addEventListener('fullscreenchange', onFS)
@@ -151,7 +125,7 @@ onUnmounted(() => {
 <template>
   <div
     class="bg-glow"
-    :class="workout.view.value === 'timer' ? 'phase-' + workout.phaseCls.value : ''"
+    :class="route.path === '/train' ? 'phase-' + workout.phaseCls.value : ''"
     aria-hidden="true"
   ></div>
 
@@ -162,7 +136,7 @@ onUnmounted(() => {
     ]"
   >{{ toastText }}</div>
 
-  <div class="fixed top-4 right-4 z-50 flex gap-2" v-show="workout.view.value === 'timer' || workout.view.value === 'summary'">
+  <div class="fixed top-4 right-4 z-50 flex gap-2" v-show="route.path === '/train' || route.path === '/summary'">
     <button
       class="size-9 rounded-[10px] border border-line bg-surface text-ink-2 cursor-pointer inline-flex items-center justify-center transition-all duration-200 opacity-50 p-0 font-[inherit] hover:opacity-100 hover:border-accent hover:text-ink hover:shadow-[0_4px_16px_-6px_rgba(124,111,247,0.5)] aria-pressed:opacity-100 aria-pressed:border-danger aria-pressed:text-danger"
       :title="settings.muted ? '开启声音' : '静音'"
@@ -189,38 +163,11 @@ onUnmounted(() => {
     <Icon :icon="isFullscreen ? 'mdi:fullscreen-exit' : 'mdi:fullscreen'" />
   </button>
 
-  <RouterView v-if="workout.view.value === 'editor'" />
-
-  <Transition v-else name="fade" mode="out-in">
-    <TimerView
-      v-if="workout.view.value === 'timer'"
-      key="timer"
-      :remaining="workout.remaining.value"
-      :paused="workout.paused.value"
-      :display-name="workout.displayName.value"
-      :phase-label="workout.phaseLabel.value"
-      :phase-cls="workout.phaseCls.value"
-      :current-round="workout.currentRound.value"
-      :rounds="workout.rounds.value"
-      :current-step-type="workout.currentStepType.value"
-      :next-name="workout.nextName.value"
-      :next-sec="workout.nextSec.value"
-      :progress-dots="workout.progressDots.value"
-      @pause="handlePause"
-      @skip="handleSkip"
-      @stop="handleStop"
-    />
-    <SummaryView
-      v-else
-      key="summary"
-      :total-elapsed="workout.totalElapsed.value"
-      :rounds="workout.rounds.value"
-      :exercise-count="workout.exercises.value.length"
-      :fmt="workout.fmt"
-      @restart="handleRestart"
-      @home="handleHome"
-    />
-  </Transition>
+  <RouterView v-slot="{ Component, route: currentRoute }">
+    <Transition name="page" mode="out-in">
+      <component :is="Component" :key="currentRoute.path" />
+    </Transition>
+  </RouterView>
 </template>
 
 <style>
@@ -249,17 +196,21 @@ onUnmounted(() => {
   background: radial-gradient(80% 62% at 50% 42%, rgba(167, 139, 250, 0.19), transparent 72%);
 }
 
-/* 计时/总结切换过渡 */
-.fade-enter-active,
-.fade-leave-active {
+/* 页面切换过渡（vue-router 官方 RouterView + Transition 模式） */
+.page-enter-active,
+.page-leave-active {
   transition:
-    opacity 0.25s,
-    transform 0.25s;
+    opacity 0.28s ease,
+    transform 0.28s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.page-enter-from {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>
