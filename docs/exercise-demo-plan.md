@@ -15,7 +15,7 @@
 **已确认的选型方向**：
 
 | 项 | 决策 |
-|----|------|
+| ---- | ------ |
 | 动画形态 | 双帧静态图切换（起/止两个姿势交替） |
 | 素材来源 | [free-exercise-db](https://github.com/yuhonas/free-exercise-db)（**Unlicense 公有领域**，可商用） |
 | 覆盖范围 | 内置预设预填 `demoId` + 编辑器可选动作库 |
@@ -27,7 +27,7 @@
 ## 2. 调研结论：同类项目怎么做
 
 | 项目 / 方案 | 做法 | 对我们的启示 |
-|---|---|---|
+| --- | --- | --- |
 | LogPress（`hasaneyldrm/exercises-dataset`，18.8k★） | 1324 个动作各配 180×180 GIF 动图 | 业界主流是 GIF；但媒体 © Gym visual，**商用须另行授权**，弃用 |
 | `ExerciseDB / exercisedb-api`（555★） | 11000+ 动作，GIF/视频 | 需联网 API，违背本 App 离线优先，弃用 |
 | `yuhonas/free-exercise-db`（1.7k★） | 873 动作，**每个动作 2 张姿势 JPG**（`0.jpg` 起始 / `1.jpg` 结束），**Unlicense** | **采用**：许可干净、离线可控、体积可控 |
@@ -36,7 +36,7 @@
 **形态对比（已收敛）**：
 
 | 方案 | 优点 | 缺点 | 结论 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | GIF | 动感强、最常见 | 体积大；优质库版权受限 | ✗ |
 | WebM/MP4 | 画质/体积好 | 实现与预加载重 | ✗ |
 | **双帧静态图** | 许可干净、实现简单、体积小 | 动感弱；库缺部分 HIIT 动作 | **✓ 采用** |
@@ -48,7 +48,7 @@
 ## 3. 现状与约束（代码库现状）
 
 | 现状 | 影响 |
-|---|---|
+| --- | --- |
 | 动作模型仅 `{ name, work, rest }` | 需要新增 `demoId` 字段并端到端透传 |
 | `normalizeExercise` / `cloneConfig` / `exportPreset` 会丢弃未知字段（`src/utils/presetFormat.js`） | 不改这些，`demoId` 会丢失 |
 | 训练页 `TimerView.vue` 只渲染名称 + 图标（图标按阶段类型硬编码） | 需要新增示意组件挂载点 |
@@ -83,7 +83,7 @@
 ### 4.2 需要透传 `demoId` 的路径（缺一即丢字段）
 
 | 位置 | 改动 |
-|---|---|
+| --- | --- |
 | `src/utils/presetFormat.js` → `normalizeExercise` | 校验并保留合法 `demoId` |
 | `src/utils/presetFormat.js` → `cloneConfig` | 复制 `demoId` |
 | `src/utils/presetFormat.js` → `parseImportPayload` | 允许可选 `demoId`（v1 保持兼容） |
@@ -124,7 +124,7 @@
 
 ### 5.2 静态资源布局
 
-```
+```bash
 public/exercise-demos/{id}/0.jpg   起始姿势
 public/exercise-demos/{id}/1.jpg   结束姿势
 ```
@@ -153,7 +153,7 @@ suggestDemoByName(nameZh)  // 名称模糊推荐（弱提示，不自动覆盖�
 以下为 `src/data/presets.json` + `defaults.json` 全部动作的去重结果与映射建议（**已核对 free-exercise-db 实存 id**）：
 
 | 预设中的动作名 | 候选 `demoId` | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | 深蹲 / 徒手深蹲 | `Bodyweight_Squat` | ✓ 精确对应 |
 | 俯卧撑 / 标准俯卧撑 | `Pushups` | ✓ |
 | 上斜俯卧撑 | `Incline_Push-Up` | ✓ |
@@ -194,7 +194,7 @@ suggestDemoByName(nameZh)  // 名称模糊推荐（弱提示，不自动覆盖�
 ### 7.1 `ExerciseDemo.vue`（新增组件）
 
 | 行为 | 规格 |
-|---|---|
+| --- | --- |
 | Props | `demoId`、`paused`、可选 `label`、可选 `size` |
 | 动画 | 700–900ms 双帧交叉淡入（`opacity` 过渡，CSS 实现） |
 | 暂停 | `paused=true` 时停止切换，保留当前帧 |
@@ -224,7 +224,7 @@ suggestDemoByName(nameZh)  // 名称模糊推荐（弱提示，不自动覆盖�
 ## 8. 文件改动清单
 
 | 路径 | 作用 |
-|---|---|
+| --- | --- |
 | `src/data/exerciseCatalog.json` | **新增** 精选目录（id / nameZh / nameEn / tags） |
 | `src/data/presets.json` | 可匹配动作预填 `demoId` |
 | `src/data/defaults.json` | 无需改（newExercise 无示意）；若新增示例动作按需 |
@@ -302,7 +302,7 @@ suggestDemoByName(nameZh)  // 名称模糊推荐（弱提示，不自动覆盖�
 ## 11. 风险与缓解
 
 | 风险 | 缓解 |
-|---|---|
+| --- | --- |
 | HIIT 招牌动作（波比/开合跳/高抬腿）无图 | 首版接受空示意；目录格式预留，后续自备 2 帧图即可补 |
 | 包体积上涨（约 4MB） | 精选集 + 仅 vendor 目录内 id；SW cache-first 不重复下载 |
 | 旧自定义预设无 `demoId` | 完全兼容，编辑时可补选 |
