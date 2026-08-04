@@ -25,11 +25,12 @@ const THRESHOLD = Number(process.env.VISUAL_THRESHOLD || 0)
 
 const ROUTES = [
   ['home', '/'],
-  ['detail', '/preset/builtin/全身力量'],
-  ['edit', '/new'],
+  ['detail', '/#/preset/builtin/全身力量'],
+  ['edit', '/#/new'],
   ['timer', '/?demo=timer'],
   ['timer-work', '/?demo=work'],
   ['summary', '/?demo=summary'],
+  ['notfound', '/404.html'],
 ]
 const SIZES = [
   ['mobile', 430, 932],

@@ -27,11 +27,19 @@ pnpm test     # 单元测试
 
 ## 部署
 
-纯静态 SPA，`pnpm build` 后上传 `dist/` 即可。路由为 history 模式，平台需支持 SPA 回退（`public/_redirects` 已内置：`/* /index.html 200`）。
+纯静态 SPA，`pnpm build` 后上传 `dist/` 即可。路由为 **hash 模式**
+（`#/` 前缀），纯静态托管无需 SPA 回退；`public/404.html` 提供风格统一的
+404 页面。
 
 - **Cloudflare Pages**：连接仓库 → 框架预设 Vite → 输出目录 `dist`（`_redirects` 自动生效）
 - **EdgeOne Makers**（腾讯）：连接仓库或 CLI 上传 `dist/`，控制台开启 SPA 模式
-- 其他静态托管：确认支持将未知路径 rewrite 到 `index.html`；GitHub Pages 项目站需额外处理 `base` 与 404 兜底
+- **GitHub Pages**：仓库已内置 `.github/workflows/pages.yml`，推送 `main` 后
+  自动构建发布到 `https://<用户名>.github.io/circuit-training-timer/`；
+  首次需在 Settings → Pages 把 Source 设为 **GitHub Actions**
+- 其他静态托管：直接上传 `dist/` 即可（hash 路由不依赖服务端 rewrite）
+
+> 子路径部署：GitHub Pages 构建时通过 `VITE_BASE=/circuit-training-timer/`
+> 注入资源前缀（见 `pages.yml`）；其他子路径托管可照此设置环境变量。
 
 ## 数据
 
