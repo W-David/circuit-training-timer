@@ -8,7 +8,7 @@ Vue 3 + Vite 单页应用：预设、自定义编排、计时、语音/蜂鸣提
 
 ```bash
 pnpm install
-pnpm dev      # 开发服务器
+pnpm dev      # 开发服务器（监听局域网，终端会显示 Network 地址）
 pnpm build    # 产出 dist/
 pnpm preview  # 预览构建结果
 pnpm test     # 单元测试
