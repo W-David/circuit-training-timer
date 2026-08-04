@@ -6,6 +6,7 @@ import { useActions } from './composables/useActions.js'
 import { useSettings } from './composables/useSettings.js'
 import { useToast } from './composables/useToast.js'
 import { useWorkout } from './composables/useWorkout.js'
+import { SW_UPDATE_EVENT } from './plugins/serviceWorker.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -112,7 +113,7 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', onFS)
   document.addEventListener('keydown', onKey)
   document.addEventListener('visibilitychange', onVis)
-  window.addEventListener('ct3:update-ready', onUpdateReady)
+  window.addEventListener(SW_UPDATE_EVENT, onUpdateReady)
   // 开发调试：?demo=timer / ?demo=summary 直达计时/总结视图（仅 dev 构建生效，
   // 供 scripts/visual-snapshot.mjs 交互视图回归使用）
   if (import.meta.env.DEV) {
@@ -139,7 +140,7 @@ onUnmounted(() => {
   document.removeEventListener('fullscreenchange', onFS)
   document.removeEventListener('keydown', onKey)
   document.removeEventListener('visibilitychange', onVis)
-  window.removeEventListener('ct3:update-ready', onUpdateReady)
+  window.removeEventListener(SW_UPDATE_EVENT, onUpdateReady)
   releaseWakeLock()
 })
 </script>

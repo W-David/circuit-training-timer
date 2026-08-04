@@ -19,6 +19,7 @@ No lint/typecheck scripts. CI: `.github/workflows/ci.yml` (test + build on push/
 | Path | Role |
 |------|------|
 | `src/main.js` | App bootstrap; SW registered only when `import.meta.env.PROD` |
+| `src/plugins/` | App plugins: Service Worker registration & update detection |
 | `src/App.vue` | Shell: composables, timer/summary overlay, fullscreen/wake-lock/keyboard/mute |
 | `src/router.js` | 页面路由（hash 模式，适配 GitHub Pages 等静态托管） |
 | `src/composables/` | Workout engine, presets, audio, settings, toast, actions, storage, `useEscClose` |
