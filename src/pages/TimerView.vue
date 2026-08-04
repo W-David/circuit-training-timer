@@ -43,24 +43,26 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
   <div class="text-center py-4 min-h-[calc(100dvh-88px)] flex flex-col items-center justify-center">
     <!-- 状态岛：休息/热身 = 单一提示；运动 = 状态 + 动作名 -->
     <div class="timer-status" :class="[phaseCls, { solo: !isWork }]">
-      <span class="status-icon" aria-hidden="true">
-        <Icon :icon="phaseIcon" />
-      </span>
-      <span class="status-body">
+      <span class="status-head">
+        <span class="status-icon" aria-hidden="true">
+          <Icon :icon="phaseIcon" />
+        </span>
         <span class="status-label">{{ phaseLabel }}</span>
-        <span v-if="isWork" class="status-title">{{ displayName }}</span>
       </span>
+      <span v-if="isWork" class="status-title">{{ displayName }}</span>
     </div>
 
     <div class="timer-countdown" :class="{ urgent: remaining <= 3 && !paused }">
       <FlipClock :seconds="remaining" />
     </div>
 
-    <div v-if="currentStepType !== 'warmup'" class="text-[0.88rem] opacity-[0.55] mb-1">
-      第 <b class="opacity-100 text-accent-2">{{ currentRound + 1 }}</b> / {{ rounds }} 轮
-    </div>
-    <div v-else class="text-[0.88rem] opacity-[0.55] mb-1">
-      <Icon icon="mdi:fire" /> 热身
+    <div class="text-[0.88rem] opacity-[0.55] my-3">
+      <div v-if="currentStepType !== 'warmup'">
+        第 <b class="opacity-100 text-accent-2">{{ currentRound + 1 }}</b> / {{ rounds }} 轮
+      </div>
+      <div v-else>
+        <Icon icon="mdi:fire" /> 热身
+      </div>
     </div>
 
     <div class="flex justify-center gap-2 mb-5 flex-wrap">
@@ -126,12 +128,13 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
 
   align-self: center;
   display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  max-width: min(92vw, 420px);
-  padding: 10px 18px 10px 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: min(92vw, 440px);
+  padding: 12px 18px 14px 12px;
   margin-bottom: 18px;
-  border-radius: 999px;
+  border-radius: 20px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
     rgba(12, 15, 24, 0.72);
@@ -142,6 +145,11 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
     0 0 24px -8px var(--status-glow);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+.timer-status.solo {
+  padding: 8px 18px 8px 10px;
+  border-radius: 999px;
 }
 
 .timer-status.w {
@@ -181,19 +189,19 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
     0 0 14px -4px var(--status-glow);
 }
 
-.status-body {
+.status-head {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-  text-align: left;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .status-label {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--status-accent);
   line-height: 1.2;
@@ -205,11 +213,10 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--text);
-  line-height: 1.25;
+  line-height: 1.3;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .timer-status.solo .status-label {
@@ -218,10 +225,6 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
   text-transform: none;
   font-weight: 800;
   color: var(--text);
-}
-
-.timer-status.solo .status-body {
-  justify-content: center;
 }
 
 .timer-countdown {

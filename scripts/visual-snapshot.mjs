@@ -28,6 +28,7 @@ const ROUTES = [
   ['detail', '/preset/builtin/全身力量'],
   ['edit', '/new'],
   ['timer', '/?demo=timer'],
+  ['timer-work', '/?demo=work'],
   ['summary', '/?demo=summary'],
 ]
 const SIZES = [
@@ -35,8 +36,10 @@ const SIZES = [
   ['desktop', 1280, 900],
 ]
 
-// 调试用：只拍单页单尺寸，如 VISUAL_ONLY=edit-mobile
+// 调试用：只拍单页单尺寸，如 VISUAL_ONLY=edit-mobile / timer-work-mobile
 const ONLY = process.env.VISUAL_ONLY
+const ONLY_ROUTE = ONLY ? ONLY.slice(0, ONLY.lastIndexOf('-')) : null
+const ONLY_SIZE = ONLY ? ONLY.slice(ONLY.lastIndexOf('-') + 1) : null
 
 function shotPath(dir, route, size) {
   return join(ROOT, dir, `${route}-${size}.png`)
@@ -73,9 +76,9 @@ function capture(dir) {
   mkdirSync(join(ROOT, dir), { recursive: true })
   let failed = 0
   for (const [route, path] of ROUTES) {
-    if (ONLY && route !== ONLY.split('-')[0]) continue
+    if (ONLY && route !== ONLY_ROUTE) continue
     for (const [size, w, h] of SIZES) {
-      if (ONLY && size !== ONLY.split('-')[1]) continue
+      if (ONLY && size !== ONLY_SIZE) continue
       const out = shotPath(dir, route, size)
       console.log(`capture ${dir}/${route}-${size}.png`)
       if (!chromeShot(`${BASE}${path}`, out, w, h)) failed++

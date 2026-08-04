@@ -108,6 +108,16 @@ onMounted(() => {
     const demo = new URLSearchParams(location.search).get('demo')
     if (demo === 'timer') {
       actions.startPreset('全身力量')
+    } else if (demo === 'work') {
+      actions.startConfig({
+        name: '演示',
+        icon: 'mdi:tune-variant',
+        exercises: [{ name: '深蹲', work: 60, rest: 10 }],
+        rounds: 1,
+        restBetweenRounds: 0,
+        warmupEnabled: false,
+        warmupSeconds: 60,
+      })
     } else if (demo === 'summary') {
       workout.view.value = 'summary'
     }
