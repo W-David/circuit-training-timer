@@ -1,54 +1,77 @@
 # 循环训练计时器
 
-Vue 3 + Vite 单页应用：预设、自定义编排、计时、语音/蜂鸣提示。界面文案为中文。
+一个开箱即用的循环（Circuit）训练计时器：无需登录、无需服务器，打开网页就能开始训练，手机、平板、电脑都可用。
 
-## 开发
+**在线使用**：[https://W-David.github.io/circuit-training-timer/](https://W-David.github.io/circuit-training-timer/)
 
-需要 [pnpm](https://pnpm.io/) 11+。
+## 这是什么？
+
+选择一套训练计划（或自己编排一套），计时器会按照「热身 → 动作 → 休息 → 下一轮」的顺序自动播报，你只需要专心完成动作。适合 Tabata、HIIT、力量循环、自重燃脂等训练场景。
+
+## 主要功能
+
+- **内置 12 套系统预设**：全身力量、HIIT 高强度、Tabata、核心训练、燃脂循环、跑者力量等，点开即可开始
+- **自定义预设**：自由编排动作、每个动作的时长与休息、轮数、轮间休息和热身时长，还能选图标
+- **语音 + 蜂鸣提示**：动作开始、即将休息、训练结束都会提前 5 秒播报，不用一直盯着屏幕
+- **精准计时**：暂停时间不计入训练，切到后台再回来会自动追赶进度，不丢节拍
+- **专注模式**：支持全屏、静音，训练界面只保留当前状态，干扰最小
+- **数据完全本地**：不需要账号，支持单个预设导入/导出和整机备份
+- **PWA**：可安装到主屏幕，支持离线打开
+
+## 快速开始
+
+1. 打开 [在线版](https://W-David.github.io/circuit-training-timer/)，首页会看到「系统预设」和「我的预设」
+2. 点一个预设（例如「Tabata」）进入详情页，查看动作列表和预计总时长
+3. 点击「开始训练」，跟着语音提示完成即可
+
+## 使用技巧
+
+### 训练中
+
+| 操作 | 方式 |
+| --- | --- |
+| 暂停 / 继续 | 按空格键（或点屏幕） |
+| 跳过当前阶段 | `Ctrl + S` |
+| 全屏 / 退出全屏 | `Ctrl + F` |
+| 静音 / 开启声音 | 训练页右上角喇叭按钮 |
+
+> 手机上同样支持这些操作，按一下屏幕即可暂停。
+
+### 预设管理
+
+- 系统预设不能直接编辑，但点「另存为」可以复制一份到「我的预设」，之后就能随意修改
+- 「我的预设」里的内容可以编辑、删除
+- 「新建预设」从空白开始，按自己的节奏编排
+- 详情页可以把单个预设导出成 JSON 文件分享给别人；首页的「保存备份 / 加载备份」用于整机迁移
+
+### 版本更新
+
+网站发布新版本后，已打开页面底部会出现「发现新版本」提示，点击「立即刷新」即可使用最新功能。
+
+## 数据与隐私
+
+- 所有预设和设置都保存在浏览器的本地存储中，不会上传到任何服务器
+- 清除浏览器数据、换设备或换浏览器会丢失数据，建议定期「保存备份」
+- 无需注册、无需联网同步，开箱即用
+
+## 本地开发
+
+需要 [pnpm](https://pnpm.io/) 11+ 和 Node.js 20+。
 
 ```bash
 pnpm install
-pnpm dev      # 开发服务器（监听局域网，终端会显示 Network 地址）
-pnpm build    # 产出 dist/
-pnpm preview  # 预览构建结果
-pnpm test     # 单元测试
+pnpm dev       # 开发服务器（局域网内可通过 Network 地址访问）
+pnpm build     # 构建到 dist/
+pnpm preview   # 本地预览构建结果
+pnpm test      # 运行单元测试
 ```
-
-样式已接入 Tailwind CSS，逐步迁移的步骤见
-[`docs/tailwind-migration.md`](docs/tailwind-migration.md)。
-
-## 使用说明
-
-- 首页浏览系统预设 / 我的预设；支持「保存备份 / 加载备份」整机备份
-- 详情页：开始训练；**另存为**一键复制到「我的预设」；仅自定义预设可**编辑**
-- 编辑页支持动作排序（桌面拖拽 / 移动端上下按钮）、选图标、导入/导出 JSON、直接开始或保存
-- 计时中：空格暂停，`Ctrl+S` 跳过，`Ctrl+F` 全屏；顶部可一键静音
-- 支持安装为 PWA（浏览器「安装应用」）
 
 ## 部署
 
-纯静态 SPA，`pnpm build` 后上传 `dist/` 即可。路由为 **hash 模式**
-（`#/` 前缀），纯静态托管无需 SPA 回退；`public/404.html` 提供风格统一的
-404 页面。
+项目是纯静态单页应用，路由使用 hash 模式（`#/`），任意静态托管都可直接使用。
 
-- **Cloudflare Pages**：连接仓库 → 框架预设 Vite → 输出目录 `dist`（`_redirects` 自动生效）
-- **EdgeOne Makers**（腾讯）：连接仓库或 CLI 上传 `dist/`，控制台开启 SPA 模式
-- **GitHub Pages**：仓库已内置 `.github/workflows/pages.yml`，推送 `main` 后
-  自动构建发布到 `https://<用户名>.github.io/circuit-training-timer/`；
-  首次需在 Settings → Pages 把 Source 设为 **GitHub Actions**
-- 其他静态托管：直接上传 `dist/` 即可（hash 路由不依赖服务端 rewrite）
+- **GitHub Pages**：仓库已内置 [pages.yml](.github/workflows/pages.yml)，推送 `main` 后自动构建发布；首次需在仓库 Settings → Pages 中将 Source 设为 **GitHub Actions**
+- **Cloudflare Pages**：连接仓库 → 框架预设选 Vite → 输出目录填 `dist`
+- **EdgeOne / 腾讯云托管**：上传 `dist/` 即可，可开启 SPA 模式
 
-> 子路径部署：GitHub Pages 构建时通过 `VITE_BASE=/circuit-training-timer/`
-> 注入资源前缀（见 `pages.yml`）；其他子路径托管可照此设置环境变量。
-
-## 数据
-
-保存在浏览器 `localStorage`：
-
-| Key | 内容 |
-|-----|------|
-| `ct3-presets` | 自定义预设 |
-| `ct3-new-draft` | 新建预设未保存草稿 |
-| `ct3-settings` | 静音等设置 |
-
-单预设导出 JSON：`{ v: 1, name, exercises, rounds, restBetweenRounds, warmupEnabled, warmupSeconds, icon?, exportedAt }`。全量备份：`{ v: 1, type: 'ct3-backup', presets: {...}, exportedAt }`。
+> 部署到子路径（如 GitHub Pages 项目页）时，构建需设置 `VITE_BASE=/仓库名/`，工作流里已配置好。
