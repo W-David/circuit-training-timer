@@ -1,4 +1,7 @@
-const CACHE = 'ct3-v3'
+// 构建时由 vite 注入产物指纹，保证每次发布 sw.js 字节都会变化，
+// 浏览器才能检测到新版本并触发更新提示
+const BUILD_ID = '__BUILD_ID__'
+const CACHE = 'ct3-v4'
 // 以 SW 作用域为基准解析路径，兼容根路径与子路径（GitHub Pages）部署
 const scope = self.registration.scope
 const indexUrl = new URL('index.html', scope).href
