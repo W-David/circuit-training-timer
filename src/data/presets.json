@@ -1,6 +1,6 @@
 [
   {
-    "key": "f",
+    "key": "全身力量",
     "icon": "mdi:arm-flex",
     "name": "全身力量",
     "warmupEnabled": true,
@@ -16,7 +16,7 @@
     "restBetweenRounds": 30
   },
   {
-    "key": "b",
+    "key": "自重燃脂",
     "icon": "mdi:run",
     "name": "自重燃脂",
     "warmupEnabled": true,
@@ -31,7 +31,7 @@
     "restBetweenRounds": 30
   },
   {
-    "key": "c",
+    "key": "核心训练",
     "icon": "mdi:target",
     "name": "核心训练",
     "warmupEnabled": true,
@@ -45,7 +45,7 @@
     "restBetweenRounds": 20
   },
   {
-    "key": "h",
+    "key": "HIIT 高强度",
     "icon": "mdi:fire",
     "name": "HIIT 高强度",
     "warmupEnabled": true,
@@ -64,7 +64,7 @@
     "restBetweenRounds": 60
   },
   {
-    "key": "t",
+    "key": "Tabata",
     "icon": "mdi:lightning-bolt",
     "name": "Tabata",
     "warmupEnabled": true,
@@ -79,7 +79,7 @@
     "restBetweenRounds": 60
   },
   {
-    "key": "y",
+    "key": "拉伸放松",
     "icon": "mdi:meditation",
     "name": "拉伸放松",
     "warmupEnabled": true,
@@ -95,7 +95,7 @@
     "restBetweenRounds": 0
   },
   {
-    "key": "n",
+    "key": "新手入门",
     "icon": "mdi:stairs",
     "name": "新手入门",
     "warmupEnabled": true,
@@ -112,7 +112,7 @@
     "restBetweenRounds": 60
   },
   {
-    "key": "g",
+    "key": "全身循环",
     "icon": "mdi:dumbbell",
     "name": "全身循环",
     "warmupEnabled": true,
@@ -129,7 +129,7 @@
     "restBetweenRounds": 45
   },
   {
-    "key": "r",
+    "key": "跑者力量",
     "icon": "mdi:shoe-sneaker",
     "name": "跑者力量",
     "warmupEnabled": true,
@@ -147,7 +147,7 @@
     "restBetweenRounds": 60
   },
   {
-    "key": "a",
+    "key": "徒手综合",
     "icon": "mdi:weight-lifter",
     "name": "徒手综合",
     "warmupEnabled": true,
@@ -166,7 +166,7 @@
     "restBetweenRounds": 60
   },
   {
-    "key": "s",
+    "key": "冲刺间歇",
     "icon": "mdi:run-fast",
     "name": "冲刺间歇",
     "warmupEnabled": true,
@@ -181,7 +181,7 @@
     "restBetweenRounds": 90
   },
   {
-    "key": "i",
+    "key": "燃脂循环",
     "icon": "mdi:heart-pulse",
     "name": "燃脂循环",
     "warmupEnabled": true,

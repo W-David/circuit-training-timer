@@ -46,7 +46,7 @@ describe('usePresets', () => {
 
   it('loads builtin presets by key', () => {
     const p = usePresets()
-    const b = p.loadBuiltin('f')
+    const b = p.loadBuiltin('全身力量')
     expect(b).toBeTruthy()
     expect(b.name).toBe('全身力量')
     expect(p.loadBuiltin('nope')).toBeNull()

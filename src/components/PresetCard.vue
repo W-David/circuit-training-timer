@@ -11,7 +11,10 @@ const emit = defineEmits(['delete'])
 const router = useRouter()
 
 function open() {
-  router.push('/preset/' + props.preset.key)
+  router.push({
+    name: 'preset-detail',
+    params: { type: props.preset.type === 'custom' ? 'custom' : 'builtin', key: props.preset.key },
+  })
 }
 </script>
 

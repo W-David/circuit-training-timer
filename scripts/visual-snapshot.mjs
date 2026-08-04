@@ -25,7 +25,7 @@ const THRESHOLD = Number(process.env.VISUAL_THRESHOLD || 0)
 
 const ROUTES = [
   ['home', '/'],
-  ['detail', '/preset/f'],
+  ['detail', '/preset/builtin/全身力量'],
   ['edit', '/new'],
   ['timer', '/?demo=timer'],
   ['summary', '/?demo=summary'],

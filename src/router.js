@@ -7,11 +7,11 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'home', component: HomeView },
-    { path: '/preset/:key', name: 'preset-detail', component: PresetDetailView },
+    { path: '/preset/:type/:key', name: 'preset-detail', component: PresetDetailView },
     { path: '/edit/:key', name: 'preset-edit', component: PresetEditView },
     { path: '/new', name: 'preset-new', component: PresetEditView },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
-  ],
+    { path: '/:pathMatch(.*)*', redirect: '/' }
+  ]
 })
 
 export default router

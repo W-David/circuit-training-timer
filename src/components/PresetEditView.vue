@@ -214,7 +214,7 @@ function startNow() {
     <button
       type="button"
       class="inline-flex items-center gap-1 bg-transparent border-none text-ink-2 cursor-pointer text-[0.82rem] font-semibold p-0 mb-3.5 font-[inherit] transition-colors duration-200 hover:text-accent-2"
-      @click="router.push(editKey ? '/preset/' + editKey : '/')"
+      @click="router.push(editKey ? '/preset/custom/' + editKey : '/')"
     >
       <Icon icon="mdi:arrow-left" />预设详情
     </button>

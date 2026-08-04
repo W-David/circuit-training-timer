@@ -19,10 +19,14 @@ const forkInput = ref(null)
 useEscClose(showForkModal)
 
 const preset = computed(() => {
-  const b = presets.builtinPresets.find((p) => p.key === route.params.key)
+  const key = route.params.key
+  if (route.params.type === 'custom') {
+    const c = presets.customPresets[key]
+    if (c) return { ...c, key, kind: 'custom' }
+    return null
+  }
+  const b = presets.builtinPresets.find((p) => p.key === key)
   if (b) return { ...b, kind: 'builtin' }
-  const c = presets.customPresets[route.params.key]
-  if (c) return { ...c, key: route.params.key, kind: 'custom' }
   return null
 })
 

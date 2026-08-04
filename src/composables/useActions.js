@@ -35,7 +35,7 @@ export function useActions() {
     savePreset(name, config, key) {
       const k = presets.savePreset(name, config, key)
       toast(key ? '已更新「' + name + '」' : '已保存「' + name + '」')
-      router.push('/preset/' + k)
+      router.push('/preset/custom/' + k)
       return k
     },
     deletePreset(key) {
@@ -52,7 +52,7 @@ export function useActions() {
       cfg.name = n
       const k = presets.savePreset(n, cfg)
       toast('已另存为「' + n + '」')
-      router.push('/preset/' + k)
+      router.push('/preset/custom/' + k)
       return k
     },
     importPreset(raw) {

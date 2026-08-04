@@ -54,6 +54,7 @@ const customPresets = computed(() =>
     ...p,
     key,
     kind: 'custom',
+    type: 'custom',
   })),
 )
 

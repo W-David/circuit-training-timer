@@ -133,7 +133,7 @@ onMounted(() => {
   if (import.meta.env.DEV) {
     const demo = new URLSearchParams(location.search).get('demo')
     if (demo === 'timer') {
-      actions.startPreset('f')
+      actions.startPreset('全身力量')
     } else if (demo === 'summary') {
       workout.view.value = 'summary'
     }
