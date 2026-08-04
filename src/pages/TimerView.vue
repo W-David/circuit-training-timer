@@ -11,7 +11,6 @@ const actions = useActions()
 const remaining = computed(() => workout.remaining.value)
 const paused = computed(() => workout.paused.value)
 const displayName = computed(() => workout.displayName.value)
-const phaseLabel = computed(() => workout.phaseLabel.value)
 const phaseCls = computed(() => workout.phaseCls.value)
 const currentRound = computed(() => workout.currentRound.value)
 const rounds = computed(() => workout.rounds.value)
@@ -41,31 +40,19 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
 
 <template>
   <div class="text-center py-4 min-h-[calc(100dvh-88px)] flex flex-col items-center justify-center">
-    <!-- 状态岛：休息/热身 = 单一提示；运动 = 状态 + 动作名 -->
-    <div class="timer-status" :class="[phaseCls, { solo: !isWork }]">
-      <span class="status-head">
-        <span class="status-icon" aria-hidden="true">
-          <Icon :icon="phaseIcon" />
-        </span>
-        <span class="status-label">{{ phaseLabel }}</span>
+    <!-- 状态岛：运动 = 图标 + 动作名；休息/热身/轮间 = 大图标光球（无文字） -->
+    <div class="timer-status" :class="[phaseCls, isWork ? 'work' : 'solo']">
+      <span class="status-icon" aria-hidden="true">
+        <Icon :icon="phaseIcon" />
       </span>
-      <span v-if="isWork" class="status-title">{{ displayName }}</span>
+      <span v-if="isWork" class="status-name">{{ displayName }}</span>
     </div>
 
     <div class="timer-countdown" :class="{ urgent: remaining <= 3 && !paused }">
       <FlipClock :seconds="remaining" />
     </div>
 
-    <div class="text-[0.88rem] opacity-[0.55] my-3">
-      <div v-if="currentStepType !== 'warmup'">
-        第 <b class="opacity-100 text-accent-2">{{ currentRound + 1 }}</b> / {{ rounds }} 轮
-      </div>
-      <div v-else>
-        <Icon icon="mdi:fire" /> 热身
-      </div>
-    </div>
-
-    <div class="flex justify-center gap-2 mb-5 flex-wrap">
+    <div class="flex justify-center gap-2 mt-8 mb-5 flex-wrap">
       <template v-for="(d, idx) in progressDots" :key="idx">
         <div v-if="d === 's'" class="w-3"></div>
         <div
@@ -127,14 +114,19 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
   --status-glow: rgba(167, 139, 250, 0.28);
 
   align-self: center;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  max-width: min(92vw, 440px);
-  padding: 12px 18px 14px 12px;
   margin-bottom: 18px;
-  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 运动：图标胶囊 + 动作名 */
+.timer-status.work {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 440px);
+  padding: 10px 18px 10px 10px;
+  border-radius: 999px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
     rgba(12, 15, 24, 0.72);
@@ -143,13 +135,70 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
     0 10px 28px -14px rgba(0, 0, 0, 0.75),
     0 0 0 1px rgba(0, 0, 0, 0.25) inset,
     0 0 24px -8px var(--status-glow);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
+.timer-status.work .status-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--status-accent);
+  background: var(--status-soft);
+  box-shadow:
+    inset 0 0 0 1px var(--status-ring),
+    0 0 14px -4px var(--status-glow);
+}
+
+.timer-status.work .status-name {
+  min-width: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  padding-right: 4px;
+}
+
+/* 休息/热身/轮间：呼吸光球，仅大图标（状态不再用文字表达） */
 .timer-status.solo {
-  padding: 8px 18px 8px 10px;
-  border-radius: 999px;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.1), transparent 42%),
+    radial-gradient(circle at 50% 45%, var(--status-soft), rgba(12, 15, 24, 0.82) 75%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 14px 36px -14px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 34px -4px var(--status-glow);
+  animation: status-breathe 3.2s ease-in-out infinite;
+}
+
+.timer-status.solo .status-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--status-accent);
+  filter: drop-shadow(0 0 10px var(--status-glow));
+}
+
+@keyframes status-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.045);
+  }
 }
 
 .timer-status.w {
@@ -171,60 +220,6 @@ const isWork = computed(() => workout.currentStepType.value === 'work')
   --status-soft: rgba(167, 139, 250, 0.14);
   --status-ring: rgba(167, 139, 250, 0.4);
   --status-glow: rgba(167, 139, 250, 0.28);
-}
-
-.status-icon {
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  color: var(--status-accent);
-  background: var(--status-soft);
-  box-shadow:
-    inset 0 0 0 1px var(--status-ring),
-    0 0 14px -4px var(--status-glow);
-}
-
-.status-head {
-  min-width: 0;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.status-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--status-accent);
-  line-height: 1.2;
-  opacity: 0.95;
-}
-
-.status-title {
-  font-size: 1.12rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--text);
-  line-height: 1.3;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-.timer-status.solo .status-label {
-  font-size: 1rem;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  font-weight: 800;
-  color: var(--text);
 }
 
 .timer-countdown {
