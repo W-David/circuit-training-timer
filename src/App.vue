@@ -104,8 +104,10 @@ watch(workout.view, (v) => {
 
 watch(
   () => route.path,
-  (p) => {
+  (p, prev) => {
     document.body.classList.toggle('timer-active', p === '/train')
+    // 浏览器后退离开训练/总结时停表并清会话，避免后台继续计时和语音
+    if (prev) actions.onLeaveRuntime(prev)
   },
 )
 
