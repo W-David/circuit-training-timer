@@ -7,14 +7,20 @@ import { useToast } from './useToast.js'
 import { parseImportPayload, cloneConfig } from '../utils/presetFormat.js'
 import { backupFileName } from '../utils/backup.js'
 
+let returnTo = '/'
+
+function exitFullscreenIfNeeded() {
+  if (typeof document !== 'undefined' && document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {})
+  }
+}
+
 export function useActions() {
   const router = useRouter()
   const workout = useWorkout()
   const presets = usePresets()
   const audio = useAudio(useSettings().settings)
   const { toast } = useToast()
-  // 训练开始前所在的页面路径，结束后返回
-  let returnTo = '/'
 
   function resolvePreset(key) {
     return presets.loadBuiltin(key) || presets.customPresets[key] || null
@@ -46,10 +52,20 @@ export function useActions() {
     stopWorkout() {
       workout.stop()
       audio.cancel()
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {})
-      }
+      exitFullscreenIfNeeded()
       router.push(returnTo || '/')
+    },
+    /** 浏览器后退离开训练/总结页时停表并清会话，不再次导航 */
+    onLeaveRuntime(fromPath) {
+      if (fromPath === '/train' && workout.view.value === 'timer') {
+        workout.stop()
+        audio.cancel()
+        exitFullscreenIfNeeded()
+      } else if (fromPath === '/summary' && workout.view.value === 'summary') {
+        workout.goHome()
+        audio.cancel()
+        exitFullscreenIfNeeded()
+      }
     },
     restart() {
       audio.prime()
@@ -59,9 +75,7 @@ export function useActions() {
     home() {
       workout.goHome()
       audio.cancel()
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {})
-      }
+      exitFullscreenIfNeeded()
       router.push('/')
     },
     savePreset(name, config, key) {
